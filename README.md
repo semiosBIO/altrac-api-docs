@@ -1,7 +1,7 @@
 # Altrac API Documentation
 ## Authentication
-Currently there is one way to authenticate to the Altrac API. 
-### User Credential Login
+Currently there is one way to authenticate to the Altrac API, User Credential Login. 
+### POST: User Credential Login
 Request:
 ```Shell
 curl --request POST \
@@ -13,7 +13,7 @@ curl --request POST \
 }'
 ```
 Response:
-```JSON
+```javascript
 {
   "id": "{id}",
   "email": "{email}",
@@ -33,3 +33,681 @@ Response:
 }
 ```
 You will be able to use the token generated in the response in order to make the other documented queries.
+
+## User Model
+### GET: User Information
+This endpoint supplies the customer_id needed for other queries below.
+
+**_WARNING:_** This API endpoint will be changing in the near future:
+- The endpoint location will be moving away from authID
+- The customer_id is slated to change due to a normalization effort underway as of 2018-10-08
+
+Query:
+
+```Shell
+curl --request GET \
+  --url https://altrac-api.com/users/authID \
+  --header 'authorization: Bearer {token}'
+```
+Response:
+```javascript
+{
+  "id": "{user_id}",
+  "customer_id": "{customer_id}",
+  "locale": {
+    "tempConv": "f"
+  },
+  "permissions": {
+    "pin": "{hash}",
+    "level": 0 // {permission_level}
+  },
+  "created_at": "{date}",
+  "updated_at": "{date}",
+  "email": "{email}",
+  "name": "{nickname}"
+}
+```
+## Customer Model
+### GET: Customer by ID
+
+This endpoint is used by the web application to determine what applications the customer has and to build links for these applications.
+
+Query:
+
+```Shell
+curl --request GET \
+  --url 'https://altrac-api.com/customers/{customer_id}' \
+  --header 'authorization: Bearer {token}'
+```
+Response:
+```javascript
+{
+  "applications": [
+    {
+      "name": "Wind Machines",
+      "deviceType": "windMachine",
+      "deviceGroup": "Ranch Rayo"
+    }
+  ],
+  "created_at": "{date}",
+  "updated_at": "{date}",
+  "customer_name": "{name}",
+  "id": "{customer_id}",
+  "new_id": "{customer_id_future}",
+  "security": {}
+}
+```
+
+### GET: All Customer Devices by Type and Group
+
+This endpoint returns all customer devices by Device Type and Device Group
+- Device Type: This is the type of Altrac device -- an example would be `windMachine` which equals "Wind Machine". You can find values for this in the Customer Information query.
+- Device Group: This is the group the device belongs to -- an example from Customer Information above would be `Ranch Rayo`. Groups are used primarily to distinguish between ranches.
+
+Query:
+
+```Shell
+curl --request GET \
+  --url 'https://altrac-api.com/customers/{customer_id}/devices?deviceType={deviceType}&deviceGroup={deviceGroup}' \
+  --header 'authorization: Bearer {token}'
+```
+Response:
+
+The response below is one device. This will return an array of devices depending on the number of devices that meet the queries criteria.
+
+```javascript
+[
+  {
+    "id": "{device_id}",
+    "address": "{address}",
+    "application_settings": {
+      "date": "{date}",
+      "address": "{address}",
+      "user_id": "{user_id}",
+      "settings": {
+        "auto": 1,
+        "update": 0,
+        "tempStop": 1.67,
+        "tempStart": 0,
+        "calibrate1": 500,
+        "calibrate2": 1200,
+        "sleepInterval": 0
+      },
+      "created_at": "{date}",
+      "updated_at": "{date}"
+    },
+    "application_settings_new": {
+      "id": "{setting_id}",
+      "date": "{date}",
+      "status": "onDevice",
+      "address": "{address}",
+      "user_id": "{user_id}",
+      "settings": {
+        "update": 0,
+        "sleepInterval": 0
+      },
+      "created_at": "{date}",
+      "updated_at": "{date}"
+    },
+    "customer_id": "{customer_id}",
+    "customer_id_old": "",
+    "address_alias": "{altrac_internal_name}",
+    "created_at": "{date}",
+    "updated_at": "{date}",
+    "installed_at": null,
+    "interface": null,
+    "interface_id": "{interface_id}",
+    "physical": {
+      "rpmSensor": "default",
+      "deviceType": "windMachine",
+      "deviceGroup": "Wind Machines",
+      "deviceNumber": "509-B",
+      "rpmMultiplier": 0.6535947712418301
+    },
+    "configuration": {
+      "pcb": "endpoint_0305",
+      "imei": "{imei}",
+      "model": "windMachineOrchardRiteV10",
+      "sales": {
+        "invoice": "INV-180066"
+      },
+      "firmware": {
+        "osVersion": 393472,
+        "productId": 7725,
+        "application": 30575,
+        "boardVersion": 340,
+        "applicationVersion": 44
+      },
+      "simIccid": "{sim_iccid}",
+      "enclosure": "1.2B",
+      "pcbWiring": "1.3",
+      "subassemblies": [
+        {
+          "type": "Wiring Harness",
+          "model": "1.2"
+        },
+        {
+          "type": "Control Cable",
+          "model": "1.3b"
+        },
+        {
+          "type": "Temperature Probe",
+          "model": "1.3"
+        }
+      ],
+      "particleSerialNumber": "{serial_number}"
+    },
+    "reading0": {
+      "128": 15,
+      "129": 0.78,
+      "130": 0.555,
+      "131": 0,
+      "132": 1536880608,
+      "133": 0.001,
+      "134": 0,
+      "135": 0,
+      "140": 1,
+      "143": 10000,
+      "179": 22297,
+      "185": 128,
+      "186": 52,
+      "187": -10000,
+      "200": 0,
+      "201": 1.67,
+      "202": 1,
+      "date": "{date}",
+      "128Date": "{date}",
+      "129Date": "{date}",
+      "130Date": "{date}",
+      "131Date": "{date}",
+      "132Date": "{date}",
+      "133Date": "{date}",
+      "134Date": "{date}",
+      "135Date": "{date}",
+      "140Date": "{date}",
+      "143Date": "{date}",
+      "179Date": "{date}",
+      "185Date": "{date}",
+      "186Date": "{date}",
+      "187Date": "{date}",
+      "200Date": "{date}",
+      "201Date": "{date}",
+      "202Date": "{date}",
+      "address": "{address}"
+    },
+    "reading1": {
+      "128": 15,
+      "129": 0.78,
+      "130": 0.555,
+      "131": 0,
+      "132": 1536880608,
+      "133": 0.001,
+      "134": 0,
+      "135": 0,
+      "140": 1,
+      "143": 10000,
+      "179": 22297,
+      "185": 128,
+      "186": 52,
+      "187": -10000,
+      "200": 0,
+      "201": 1.67,
+      "202": 1,
+      "date": "{date}",
+      "128Date": "{date}",
+      "129Date": "{date}",
+      "130Date": "{date}",
+      "131Date": "{date}",
+      "132Date": "{date}",
+      "133Date": "{date}",
+      "134Date": "{date}",
+      "135Date": "{date}",
+      "140Date": "{date}",
+      "143Date": "{date}",
+      "179Date": "{date}",
+      "185Date": "{date}",
+      "186Date": "{date}",
+      "187Date": "{date}",
+      "200Date": "{date}",
+      "201Date": "{date}",
+      "202Date": "{date}",
+      "address": "{address}"
+    },
+    "interface_versioned": {
+      "data": {
+        "tile": {
+          "unit": "Temperature",
+          "formula": "temperature",
+          "valueKey": "128",
+          "multiplier": 1,
+          "unitAbbreviation": "°"
+        },
+        "other": {
+          "controller": "callToStart"
+        },
+        "primaryPage": {
+          "chart": "windMachine",
+          "rules": false,
+          "settingTypes": [
+            "temperatureSet"
+          ],
+          "physicalTypes": [],
+          "telemetryTypes": [
+            "settingAutoModeHauff",
+            "settingEngineState",
+            "rpm",
+            "temperature",
+            "batteryExternal"
+          ]
+        },
+        "advancedPage": {
+          "rules": true,
+          "settingTypes": [],
+          "physicalTypes": [
+            "deviceNumber",
+            "deviceGroup"
+          ],
+          "telemetryTypes": [
+            {
+              "unit": "%",
+              "label": "Internal Battery",
+              "formula": "default",
+              "valueKey": "129",
+              "multiplier": 0.01
+            },
+            {
+              "unit": "",
+              "label": "RSSI dB",
+              "formula": "cellSignalToRssi",
+              "valueKey": "179",
+              "multiplier": 1
+            }
+          ]
+        }
+      },
+      "type": "windMachine",
+      "subtype": "orchardRite",
+      "version": "1",
+      "created_at": "{date}",
+      "updated_at": "{date}",
+      "id": "{interface_id}"
+    }
+  }
+]
+```
+
+## Device Model
+### GET: Device by ID
+**_WARNING:_** This API endpoint will be changing in the near future:
+- The customer_id will be changing for a normalization effort
+- The address will be removed in for a normalization effort around the device ID
+
+This endpoint is used to get information about a specific device. It returns the same response as the above request for all devices of a certain type and group.
+
+Query:
+
+```Shell
+curl --request GET \
+  --url 'https://altrac-api.com/devices/{device_id}' \
+  --header 'authorization: Bearer {token}'
+```
+Response:
+```javascript
+{
+  "id": "{device_id}",
+  "address": "{address}",
+  "application_settings": {
+    "date": "{date}",
+    "address": "{address}",
+    "user_id": "{user_id}",
+    "settings": {
+      "auto": 1,
+      "update": 0,
+      "tempStop": 1.67,
+      "tempStart": 0,
+      "calibrate1": 500,
+      "calibrate2": 1200,
+      "sleepInterval": 0
+    },
+    "created_at": "{date}",
+    "updated_at": "{date}"
+  },
+  "application_settings_new": {
+    "id": "{setting_id}",
+    "date": "{date}",
+    "status": "onDevice",
+    "address": "{address}",
+    "user_id": "{user_id}",
+    "settings": {
+      "update": 0,
+      "sleepInterval": 0
+    },
+    "created_at": "{date}",
+    "updated_at": "{date}"
+  },
+  "customer_id": "{customer_id}",
+  "customer_id_old": "",
+  "address_alias": "{altrac_internal_name}",
+  "created_at": "{date}",
+  "updated_at": "{date}",
+  "installed_at": null,
+  "interface": null,
+  "interface_id": "{interface_id}",
+  "physical": {
+    "rpmSensor": "default",
+    "deviceType": "windMachine",
+    "deviceGroup": "Wind Machines",
+    "deviceNumber": "509-B",
+    "rpmMultiplier": 0.6535947712418301
+  },
+  "configuration": {
+    "pcb": "endpoint_0305",
+    "imei": "{imei}",
+    "model": "windMachineOrchardRiteV10",
+    "sales": {
+      "invoice": "INV-180066"
+    },
+    "firmware": {
+      "osVersion": 393472,
+      "productId": 7725,
+      "application": 30575,
+      "boardVersion": 340,
+      "applicationVersion": 44
+    },
+    "simIccid": "{sim_iccid}",
+    "enclosure": "1.2B",
+    "pcbWiring": "1.3",
+    "subassemblies": [
+      {
+        "type": "Wiring Harness",
+        "model": "1.2"
+      },
+      {
+        "type": "Control Cable",
+        "model": "1.3b"
+      },
+      {
+        "type": "Temperature Probe",
+        "model": "1.3"
+      }
+    ],
+    "particleSerialNumber": "{serial_number}"
+  },
+  "reading0": {
+    "128": 15,
+    "129": 0.78,
+    "130": 0.555,
+    "131": 0,
+    "132": 1536880608,
+    "133": 0.001,
+    "134": 0,
+    "135": 0,
+    "140": 1,
+    "143": 10000,
+    "179": 22297,
+    "185": 128,
+    "186": 52,
+    "187": -10000,
+    "200": 0,
+    "201": 1.67,
+    "202": 1,
+    "date": "{date}",
+    "128Date": "{date}",
+    "129Date": "{date}",
+    "130Date": "{date}",
+    "131Date": "{date}",
+    "132Date": "{date}",
+    "133Date": "{date}",
+    "134Date": "{date}",
+    "135Date": "{date}",
+    "140Date": "{date}",
+    "143Date": "{date}",
+    "179Date": "{date}",
+    "185Date": "{date}",
+    "186Date": "{date}",
+    "187Date": "{date}",
+    "200Date": "{date}",
+    "201Date": "{date}",
+    "202Date": "{date}",
+    "address": "{address}"
+  },
+  "reading1": {
+    "128": 15,
+    "129": 0.78,
+    "130": 0.555,
+    "131": 0,
+    "132": 1536880608,
+    "133": 0.001,
+    "134": 0,
+    "135": 0,
+    "140": 1,
+    "143": 10000,
+    "179": 22297,
+    "185": 128,
+    "186": 52,
+    "187": -10000,
+    "200": 0,
+    "201": 1.67,
+    "202": 1,
+    "date": "{date}",
+    "128Date": "{date}",
+    "129Date": "{date}",
+    "130Date": "{date}",
+    "131Date": "{date}",
+    "132Date": "{date}",
+    "133Date": "{date}",
+    "134Date": "{date}",
+    "135Date": "{date}",
+    "140Date": "{date}",
+    "143Date": "{date}",
+    "179Date": "{date}",
+    "185Date": "{date}",
+    "186Date": "{date}",
+    "187Date": "{date}",
+    "200Date": "{date}",
+    "201Date": "{date}",
+    "202Date": "{date}",
+    "address": "{address}"
+  },
+  "interface_versioned": {
+    "data": {
+      "tile": {
+        "unit": "Temperature",
+        "formula": "temperature",
+        "valueKey": "128",
+        "multiplier": 1,
+        "unitAbbreviation": "°"
+      },
+      "other": {
+        "controller": "callToStart"
+      },
+      "primaryPage": {
+        "chart": "windMachine",
+        "rules": false,
+        "settingTypes": [
+          "temperatureSet"
+        ],
+        "physicalTypes": [],
+        "telemetryTypes": [
+          "settingAutoModeHauff",
+          "settingEngineState",
+          "rpm",
+          "temperature",
+          "batteryExternal"
+        ]
+      },
+      "advancedPage": {
+        "rules": true,
+        "settingTypes": [],
+        "physicalTypes": [
+          "deviceNumber",
+          "deviceGroup"
+        ],
+        "telemetryTypes": [
+          {
+            "unit": "%",
+            "label": "Internal Battery",
+            "formula": "default",
+            "valueKey": "129",
+            "multiplier": 0.01
+          },
+          {
+            "unit": "",
+            "label": "RSSI dB",
+            "formula": "cellSignalToRssi",
+            "valueKey": "179",
+            "multiplier": 1
+          }
+        ]
+      }
+    },
+    "type": "windMachine",
+    "subtype": "orchardRite",
+    "version": "1",
+    "created_at": "{date}",
+    "updated_at": "{date}",
+    "id": "{interface_id}"
+  }
+}
+```
+## Reading Model
+### GET: Readings for a Device
+This endpoint supplies readings (sensor) information for a given device address
+
+**_WARNING:_** This API endpoint will be changing in the near future:
+- The address will be removed from these responses in the future in favor of the device's id
+
+Query:
+
+```Shell
+curl --request GET \
+  --url 'https://altrac-api.com/readings/address/{address}?=&dateBegin={date_begin}&dateEnd={date_end}' \
+  --header 'authorization: Bearer {token}'
+```
+Response:
+```javascript
+{
+  "Items": [
+    {
+      "128": 17.87,
+      "129": 0.79,
+      "130": 0.575,
+      "131": 0,
+      "132": 1536875539,
+      "133": 0.001,
+      "134": 0,
+      "135": 60,
+      "140": 1,
+      "143": 0,
+      "179": 21785,
+      "186": 52,
+      "187": -10000,
+      "200": 0,
+      "201": 1.67,
+      "202": 1,
+      "address": "{address}",
+      "date": "2018-10-02T16:58:50.000Z"
+    },
+    {
+      "128": 17.87,
+      "129": 0.79,
+      "130": 0.575,
+      "131": 0,
+      "132": 1536875539,
+      "133": 0.001,
+      "134": 0,
+      "135": 60,
+      "140": 1,
+      "143": 0,
+      "179": 21785,
+      "186": 52,
+      "187": -10000,
+      "200": 0,
+      "201": 1.67,
+      "202": 1,
+      "address": "{address}",
+      "date": "2018-10-02T16:57:27.000Z"
+    },
+    {
+      "128": 17.87,
+      "129": 0.79,
+      "130": 0.575,
+      "131": 0,
+      "132": 1536875539,
+      "133": 0.001,
+      "134": 0,
+      "135": 60,
+      "140": 1,
+      "143": 0,
+      "179": 21785,
+      "186": 52,
+      "187": -10000,
+      "200": 0,
+      "201": 1.67,
+      "202": 1,
+      "address": "{address}",
+      "date": "2018-10-02T16:56:06.000Z"
+    },
+    {
+      "128": 17.87,
+      "129": 0.79,
+      "130": 0.575,
+      "131": 0,
+      "132": 1536875539,
+      "133": 0.001,
+      "134": 0,
+      "135": 60,
+      "140": 1,
+      "143": 0,
+      "179": 21785,
+      "186": 52,
+      "187": -10000,
+      "200": 0,
+      "201": 1.67,
+      "202": 1,
+      "address": "{address}",
+      "date": "2018-10-02T16:54:45.000Z"
+    },
+    {
+      "128": 17.75,
+      "129": 0.79,
+      "130": 0.575,
+      "131": 0,
+      "132": 1536875539,
+      "133": 0.001,
+      "134": 0,
+      "135": 60,
+      "140": 1,
+      "143": 0,
+      "179": 21785,
+      "186": 52,
+      "187": -10000,
+      "200": 0,
+      "201": 1.67,
+      "202": 1,
+      "address": "{address}",
+      "date": "2018-10-02T16:53:23.000Z"
+    }
+  ],
+  "Count": 5,
+  "ScannedCount": 5
+}
+```
+
+Fields Key:
+
+|Field|Purpose|Unit / Value|
+|------|-------|------|
+|128|Temperature|C|
+|129|Internal Battery|%|
+|130|External Battery|Multiply by 21.633 to get Voltage|
+|131|Engine State|Running or Not Running|
+|132|Engine State Change Time|Time Since Epoch|
+|133|Fuel Level|% of 5.5V. Find conversion factor in device interface and physical|
+|134|RPM|Raw RPM value, find multiplier in device interface|
+|140|Engine State|1-12 value of engine states. To be documented in detail later. 1 = Idle, 6 = Warmup, 8 = False Start, 12 = Full Run, 13 = Cooldown|
+|143|Auto Switch|Analog value of temperature switch. 0 - 10000 converts to 0 - 100%. Should be 100% when auto switch is in auto position|
+
+
+
+
