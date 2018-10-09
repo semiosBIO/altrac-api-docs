@@ -160,8 +160,8 @@ The response below is one device. This will return an array of devices depending
     "physical": {
       "rpmSensor": "default",
       "deviceType": "windMachine",
-      "deviceGroup": "Wind Machines",
-      "deviceNumber": "509-B",
+      "deviceGroup": "Ranch Rayo",
+      "deviceNumber": "{device_user_name}",
       "rpmMultiplier": 0.6535947712418301
     },
     "configuration": {
@@ -169,7 +169,7 @@ The response below is one device. This will return an array of devices depending
       "imei": "{imei}",
       "model": "windMachineOrchardRiteV10",
       "sales": {
-        "invoice": "INV-180066"
+        "invoice": "{invoice_number}"
       },
       "firmware": {
         "osVersion": 393472,
@@ -396,8 +396,8 @@ Response:
   "physical": {
     "rpmSensor": "default",
     "deviceType": "windMachine",
-    "deviceGroup": "Wind Machines",
-    "deviceNumber": "509-B",
+    "deviceGroup": "Ranch Rayo",
+    "deviceNumber": "{device_user_name}",
     "rpmMultiplier": 0.6535947712418301
   },
   "configuration": {
@@ -405,7 +405,7 @@ Response:
     "imei": "{imei}",
     "model": "windMachineOrchardRiteV10",
     "sales": {
-      "invoice": "INV-180066"
+      "invoice": "{invoice_number}"
     },
     "firmware": {
       "osVersion": 393472,
@@ -698,6 +698,7 @@ Fields Key:
 
 |Field|Purpose|Unit / Value|
 |------|-------|------|
+|date|Date of Reading|ISO-8601 date format|
 |128|Temperature|C|
 |129|Internal Battery|%|
 |130|External Battery|Multiply by 21.633 to get Voltage|
