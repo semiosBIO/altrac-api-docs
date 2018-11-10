@@ -708,6 +708,9 @@ Fields Key:
 |134|RPM|Raw RPM value, find multiplier in device interface|
 |140|Engine State|1-12 value of engine states. To be documented in detail later. 1 = Idle, 6 = Warmup, 8 = False Start, 12 = Full Run, 13 = Cooldown|
 |143|Auto Switch|Analog value of temperature switch. 0 - 10000 converts to 0 - 100%. Should be 100% when auto switch is in auto position|
+|200|Temperature Start Setting. This shows the accepted value of the temperature start setting|C|
+|201|Temperature Stop Setting. This shows the accepted value of the temperature stop setting|C|
+|202|Auto mode. This shows the accepted value of the auto mode seting|1 = Auto, 0 = Manual|
 
 
 ## Settings Model
@@ -718,6 +721,8 @@ Fields Key:
 This endpoint is used to send a setting to a device. 
 
 The endpoint automatically merges settings that are going to the same devie which still have the status "new". For example, you could send a setting payload for a device that just has the "tempStart" settings, then follow it with a setting for a device with the "tempStop" setting. These two will be merged together in the backend and sent to the device in one payload. 
+
+Once a setting is created for a device, the device model property "application_settings_new" will be updated with the setting status. Once the setting has been sent to the device, the device model properties "application_settings" and "application_settings_new" will be updated, reflecting status. To be sure a setting has been accepted, you should also check the latest reading on the device model for the properties "200", "201" and "202", please reference above for their meaning.
 
 Query:
 
