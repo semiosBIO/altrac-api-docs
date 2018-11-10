@@ -710,5 +710,56 @@ Fields Key:
 |143|Auto Switch|Analog value of temperature switch. 0 - 10000 converts to 0 - 100%. Should be 100% when auto switch is in auto position|
 
 
+## Settings Model
+### POST: Create a new setting for a device
+**_WARNING:_** This API endpoint will be changing in the near future:
+- The address field will be changed to device_id related to our normalization effort around the device ID
 
+This endpoint is used to send a setting to a device. 
 
+The endpoint automatically merges settings that are going to the same devie which still have the status "new". For example, you could send a setting payload for a device that just has the "tempStart" settings, then follow it with a setting for a device with the "tempStop" setting. These two will be merged together in the backend and sent to the device in one payload. 
+
+Query:
+
+```Shell
+curl --request POST \
+  --url 'https://altrac-api.com/settings' \
+  --header 'authorization: Bearer {token}'
+  --header 'content-type: application/json' \
+  --data '[
+  {
+    "address": "{address}",
+    "status": "new",
+    "settings": {
+      "tempStart": -1,
+      "tempStop": 2
+    }
+  }
+]'
+```
+Response:
+```javascript
+[
+  {
+    "id": "{id}",
+    "address": "{address}",
+    "settings": {
+      "tempStop": 2,
+      "tempStart": -1
+    },
+    "status": "new",
+    "user_id": "{user_id}",
+    "created_at": "2018-11-10T21:14:50.494Z",
+    "updated_at": "2018-11-10T21:15:50.440Z"
+  }
+]
+```
+
+Settings Avaiable for Wind Machines
+
+|Field|Purpose|Unit / Value|
+|------|-------|------|
+|tempStart|Set the start temperature|Celsius, must be less than tempStop or device will overwrite|
+|tempStop|Set the stop temperature|Celsius, must be greater than tempStart or device will overwrite|
+|auto|Turn Altrac device auto mode on or off|Auto = 1, Manual = 0|
+|run|Turn machine off|0 = Turn machine off, sending 1 for manual run will have no effect, by design.|
