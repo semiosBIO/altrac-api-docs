@@ -752,8 +752,8 @@ Fields Key:
 | 185     | power-fault                                        |                                                                                                                                    |
 | 186     | power-state                                        |                                                                                                                                    |
 | 187     | humidity temp                                      |                                                                                                                                    |
-| 200     | Temperature Start Setting confirmed by device      | C                                                                                                                                  |
-| 201     | Temperature Stop Setting confirmed by device       | C                                                                                                                                  |
+| 200     | Temperature Start Setting confirmed by device      | °C                                                                                                                                  |
+| 201     | Temperature Stop Setting confirmed by device       | °C                                                                                                                                  |
 | 202     | Auto mode confirmed by device                      | 1 = Auto, 0 = Manual                                                                                                               |
 | 203     | manual run state confirmed by device               | On/Off boolean                                                                                                                     |
 | 33 - 48 | temperature values                                 | °C                                                                                                                                 |
