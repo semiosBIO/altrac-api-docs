@@ -696,21 +696,68 @@ Response:
 
 Fields Key:
 
-|Field|Purpose|Unit / Value|
-|------|-------|------|
-|date|Date of Reading|ISO-8601 date format|
-|128|Temperature|C|
-|129|Internal Battery|%|
-|130|External Battery|Multiply by 21.633 to get Voltage|
-|131|Engine State|Running or Not Running|
-|132|Engine State Change Time|Time Since Epoch|
-|133|Fuel Level|% of 5.5V. Find conversion factor in device interface and physical|
-|134|RPM|Raw RPM value, find multiplier in device interface|
-|140|Engine State|1-12 value of engine states. To be documented in detail later. 1 = Idle, 6 = Warmup, 8 = False Start, 12 = Full Run, 13 = Cooldown|
-|143|Auto Switch|Analog value of temperature switch. 0 - 10000 converts to 0 - 100%. Should be 100% when auto switch is in auto position|
-|200|Temperature Start Setting. This shows the accepted value of the temperature start setting|C|
-|201|Temperature Stop Setting. This shows the accepted value of the temperature stop setting|C|
-|202|Auto mode. This shows the accepted value of the auto mode seting|1 = Auto, 0 = Manual|
+| Field   | Purpose                                            | Unit / Value                                                                                                                       |
+|---------|----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| 0       | Unused                                             | N/A                                                                                                                                |
+| 1 - 100 | General purpose, including moisture sensor values  | %VWC                                                                                                                               |
+| 128     | Ambient Temperature                                | °C                                                                                                                                 |
+| 129     | Internal Battery                                   | %                                                                                                                                  |
+| 130     | External Battery                                   | Multiply by 21.633 to get Voltage                                                                                                  |
+| 131     | Engine State                                       | Running or Not Running                                                                                                             |
+| 131     | machine-state                                      | (on/off boolean)                                                                                                                   |
+| 131     | pump relay output                                  | (boolean)                                                                                                                          |
+| 132     | Engine State Change Time                           | Time Since Epoch                                                                                                                   |
+| 132     | machine-state                                      | timestamp                                                                                                                          |
+| 133     | Fuel Level                                         | % of 5.5V. Find conversion factor in device interface and physical                                                                 |
+| 133     | fuel-level                                         |                                                                                                                                    |
+| 133     | pump pressure                                      |                                                                                                                                    |
+| 134     | RPM                                                | Raw RPM value, find multiplier in device interface                                                                                 |
+| 134     | tach-or-speed                                      |
+| 134     | pump run-signal (boolean)                          |                                                                                                                                    |
+| 134     | GPM???                                             |                                                                                                                                    |
+| 134     | pump v1 pulse counter                              |                                                                                                                                    |
+| 135     | sleep-time                                         | seconds                                                                                                                            |
+| 136     | pressure                                           | psi                                                                                                                                |
+| 137     | not saved                                          |                                                                                                                                    |
+| 138     | power-current                                      | %                                                                                                                                  |
+| 139     | power-frequency                                    | Hz                                                                                                                                 |
+| 140     | Engine State                                       | 1-12 value of engine states. To be documented in detail later. 1 = Idle, 6 = Warmup, 8 = False Start, 12 = Full Run, 13 = Cooldown |
+| 140     | vapor pressure                                     | kPa                                                                                                                                |
+| 140     | moisture-1                                         |                                                                                                                                    |
+| 141     | shutdown-status                                    |                                                                                                                                    |
+| 141     | barometer                                          | kPa                                                                                                                                |
+| 141     | moisture-2                                         |                                                                                                                                    |
+| 141     | pump flow                                          | 4-20mA                                                                                                                             |
+| 142     | warning-status                                     |                                                                                                                                    |
+| 142     | humidity                                           | %                                                                                                                                  |
+| 142     | moisture-3                                         |                                                                                                                                    |
+| 143     | Auto Switch                                        | Analog value of temperature switch. 0 - 10000 converts to 0 - 100%. Should be 100% when auto switch is in auto position            |
+| 143     | controller-status-auto                             |                                                                                                                                    |
+| 143     | solar                                              | W/m2                                                                                                                               |
+| 144     | controller-status-auto (controller-status-modbus?) |                                                                                                                                    |
+| 144     | precip now                                         | mm                                                                                                                                 |
+| 145     | pond level                                         |                                                                                                                                    |
+| 145     | strikes                                            |                                                                                                                                    |
+| 146     | strike dist                                        | km                                                                                                                                 |
+| 147     | dew point                                          |                                                                                                                                    |
+| 148     | wind direction                                     |                                                                                                                                    |
+| 149     | wind gust                                          |                                                                                                                                    |
+| 150     | pressure switch                                    |                                                                                                                                    |
+| 151     | pressure switch                                    |                                                                                                                                    |
+| 153     | north wind speed                                   | m/s                                                                                                                                |
+| 154     | east wind speed                                    | m/s                                                                                                                                |
+| 162     | pond level min today                               |                                                                                                                                    |
+| 17 - 32 | salinity values                                    | ECe, dS/m                                                                                                                          |
+| 179     | cellular dB                                        |                                                                                                                                    |
+| 185     | power-fault                                        |                                                                                                                                    |
+| 186     | power-state                                        |                                                                                                                                    |
+| 187     | humidity temp                                      |                                                                                                                                    |
+| 200     | Temperature Start Setting confirmed by device      | C                                                                                                                                  |
+| 201     | Temperature Stop Setting confirmed by device       | C                                                                                                                                  |
+| 202     | Auto mode confirmed by device                      | 1 = Auto, 0 = Manual                                                                                                               |
+| 203     | manual run state confirmed by device               | On/Off boolean                                                                                                                     |
+| 33 - 48 | temperature values                                 | °C                                                                                                                                 |
+| date    | Date of Reading                                    | ISO-8601 date format                                                                                                               |
 
 
 ## Settings Model
