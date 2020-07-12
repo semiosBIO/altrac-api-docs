@@ -437,6 +437,93 @@ const getADeviceWithAddress = async (credentials, address) => {
 }
 ```
 ### Settings
+#### Reading device settings
+```javascript
+/**
+ * @function getSettingsWithAddress
+ * @description request settings for device using device address
+ * @param {Credentials} credentials
+ * @param {string} address
+ * @returns {Device}
+ */
+ const getSettingsWithAddress = async (credentials, address) => {
+  try {
+    const {
+      settings,
+    } = altrac(credentials);
+
+    const settingsList = await settings.getOnAddress(address, {
+      params: {
+        limit: 10,
+        status: 'onDevice',
+      }
+    });
+    return settingsList;
+  } catch (e) {
+    console.error(`\nERROR getSettingsWithAddress ${e}\n`);
+  }
+}
+```
+
+#### Updating device settings
+```javascript
+
+/**
+ * @function updateSettings
+ * @description this example shows update to settings for a single device,
+ *  multiple devices may also be updated using the settings.post function.
+ * @param {Credentials} credentials
+ * @param {string} address
+ * @param {<Object>} settings
+ * @returns {Device}
+ */
+ const updateSettings = async (credentials, address, settings) => {
+  try {
+    const {
+      settings,
+    } = altrac(credentials);
+
+    const updatedSettings = await settings.post([{ address, settings }]);
+    return updatedSettings;
+  } catch (e) {
+    console.error(`\nERROR getSettingsWithAddress ${e}\n`);
+  }
+}
+
+```
+
+#### Data Fields
+* application
+
+* auto
+  - integer
+
+  | value | description  |
+  | :---: | :----------  |
+  | 0     | MANUAL start |
+  | 1     | AUTO start   |
+
+
+* run
+  - integer
+
+  | value | description |
+  | :---: | :---------- |
+  | 0     | stop        |
+  | 1     | start       |
+
+* sleepInterval
+  - integer seconds
+
+* subApplication
+
+* tempStart
+  - float °C
+  - when ambient temperature is below this value start signal will be sent to the controlled equipment when machine is in AUTO START mode
+
+* tempStop
+  - float °C
+  - when ambient temperature is above this value stop signal will be sent to the controlled equipment when machine is in AUTO START mode
 
 ### Readings
 
@@ -449,7 +536,6 @@ Readings include values from sensors, control input and output values and device
 Wind Machine sensor data readings must be retrieved using the device **address**.
 
 ```javascript
-
 /**
  * @function getReadingsWithAddress
  * @description request Readings for device using device address
@@ -566,8 +652,8 @@ example of wind machine Reading record:
 
   | value | description  |
   | :---: | :----------  |
-  | 1     | AUTO start   |
   | 0     | MANUAL start |
+  | 1     | AUTO start   |
 
 * temperature
   - float °C
