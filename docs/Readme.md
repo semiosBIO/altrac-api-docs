@@ -4,6 +4,9 @@
 
 Initially Altrac is providing a NodeJS library capable of communicating with the Altrac System.
 
+### API Version
+To avoid incompatibilities between versions a version in the form `YYYY.MM.DD` may be provided, there is only 1 currently available version - `2018.11.30`.
+
 ## Credentials
 
 Access to the Altrac system is controlled via credentials.
