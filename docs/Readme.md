@@ -5,12 +5,19 @@
 Initially Altrac is providing a NodeJS library capable of communicating with the Altrac System.
 
 ### API Version
-To avoid incompatibilities between versions a version in the form `YYYY.MM.DD` may be provided, there is only 1 currently available version - `2018.11.30`.
+To avoid incompatibilities between versions of the back-end code a version ID in the form `YYYY.MM.DD` may be provided, there is only 1 currently available version - `2018.11.30`.
+
+The API version is set in the HTTP request header as the variable `accept-version`, example:
+
+```accept-version: 2018.11.30```
 
 ## Credentials
 
 Access to the Altrac system is controlled via credentials.
-Credentials will be : 
+
+Credentials are generated uniquely for each customer at the customer's request and are not stored within Altrac. If credentials for a customer are lost Altrac must be contacted to generate a new set.
+
+Credentials are composed of: 
 * API_KEY
     - identifies the access to data for _a single customer_
 
@@ -19,7 +26,7 @@ Credentials will be :
 
 ### secrets.js
 
-This file provides the credentials to the api-client library.
+This file provides the credentials to the api-client library to be used by the example code `example.js`. This file is not used in a production system.
 
 The ```secrets.js``` file should be edited to include the API_KEY and API_SECRET provided, example: 
 ```javascript
