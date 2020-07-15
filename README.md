@@ -726,12 +726,41 @@ Response:
 
 Settings available for Wind Machines
 
-| Field     | Purpose                                | Unit / Value                                                                   |
-|-----------|----------------------------------------|--------------------------------------------------------------------------------|
-| tempStart | Set the start temperature              | Celsius, must be less than tempStop or device will overwrite                   |
-| tempStop  | Set the stop temperature               | Celsius, must be greater than tempStart or device will overwrite               |
-| auto      | Turn Altrac device auto mode on or off | Auto = 1, Manual = 0                                                           |
-| run       | Turn machine off                       | 0 = Turn machine off, sending 1 for manual run will have no effect, by design. |
+* auto
+  - integer
+
+| value | description |
+|:-----:|:------------|
+|   0   | MANUAL      |
+|   1   | AUTO        |
+
+* run
+  - integer
+  - 0 is the only valid value for Wind Machines. They cannot be started remotely
+
+| value | description |
+|:-----:|:------------|
+|   0   | stop        |
+
+* sleepInterval
+  - integer seconds
+
+* tempStart
+  - float °C
+  - when ambient temperature is below this value start signal will be sent to the controlled equipment when machine is in AUTO START mode
+
+* tempStop
+  - float °C
+  - when ambient temperature is above this value stop signal will be sent to the controlled equipment when machine is in AUTO START mode
+
+* update
+  - integer
+  - device firmware auto update mode
+
+| value | description |
+|:-----:|:------------|
+|   0   | OFF         |
+|   1   | ON          |
 
 Settings available for Pumps and Valves
 
