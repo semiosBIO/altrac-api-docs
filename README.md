@@ -1,6 +1,10 @@
 # Altrac API Documentation
 ## Authentication
-Currently there is one way to authenticate to the Altrac API, User Credential Login. 
+
+There are two authentication paths:
+1. User credential authentication, documented below
+2. API client authentication, see https://github.com/altracio/altrac-api-client
+
 ### POST: User Credential Login
 Request:
 ```Shell
@@ -32,15 +36,11 @@ Response:
   "token": "{token}"
 }
 ```
-You will be able to use the token generated in the response in order to make the other documented queries.
+You will be able to use the token generated in the response in order to perform the queries detailed below.
 
 ## User Model
 ### GET: User Information
 This endpoint supplies the customer_id needed for other queries below.
-
-**_WARNING:_** This API endpoint will be changing in the near future:
-- The endpoint location will be moving away from authID
-- The customer_id is slated to change due to a normalization effort underway as of 2018-10-08
 
 Query:
 
@@ -67,6 +67,7 @@ Response:
   "name": "{nickname}"
 }
 ```
+
 ## Customer Model
 ### GET: Customer by ID
 
@@ -80,29 +81,91 @@ curl --request GET \
   --header 'authorization: Bearer {token}'
 ```
 Response:
-```javascript
+```JSON
 {
+  "id": "112345678901234567890",
   "applications": [
     {
+      "name": "Moisture",
+      "deviceType": "moistureSensor",
+      "deviceGroup": "Moisture"
+    },{
+      "name": "Pumps",
+      "deviceType": "pump",
+      "deviceGroup": "Pumps"
+    },{
+      "name": "Valves",
+      "deviceType": "valve",
+      "deviceGroup": "Valves"
+    },{
       "name": "Wind Machines",
       "deviceType": "windMachine",
-      "deviceGroup": "Ranch Rayo"
+      "deviceGroup": "Garden Valley"
+    },{
+      "name": "Weather",
+      "deviceType": "temperature",
+      "deviceGroup": "Weather"
     }
   ],
-  "created_at": "{date}",
-  "updated_at": "{date}",
-  "customer_name": "{name}",
-  "id": "{customer_id}",
-  "new_id": "{customer_id_future}",
-  "security": {}
+  "customer_name": "ABC Fruit",
+  "groups_enabled": false,
+  "is_active": true,
+  "created_at": "2015-11-10T19: 49: 59.029Z",
+  "updated_at": "2020-04-30T17: 18: 46.873Z",
+  "security": null,
+  "brand": { "name": "altrac", ... }
 }
 ```
+#### Data Fields
+* id
+  - string
+  - unique customer identifier
+
+* applications
+  - Array of device group info
+  
+| field       | description                                           |
+|:------------|:------------------------------------------------------|
+| name        | display name of device group                          |
+| deviceType  | type of equipment controlled by devices in this group |
+| deviceGroup | ID of group                                           |
+
+* customer_name 
+  - string
+
+* brand 
+  - Object
+  - Applies CSS and formatting to Altrac UI for customers of a brand
+
+* deviceType 
+  - string
+  - equipment type controlled by device
+
+| deviceType     | description                            |
+|:---------------|:---------------------------------------|
+| binDicator     | automated storage bin                  |
+| coldAirDrain   | fan similar in purpose to wind machine |
+| flow           | flow sensor                            |
+| moistureSensor | moisture sensor                        |
+| pump           | pump                                   |
+| pumpFrostWater | water sprayer pump                     |
+| temperature    | weather station                        |
+| valve          | valve                                  |
+| windMachine    | machine                                |
+
+* is_active
+  - boolean
+
+| value | description                             |
+|:-----:|:----------------------------------------|
+| true  | supported by the system                 |
+| false | customer is not supported by the system |
 
 ### GET: All Customer Devices by Type and Group
 
 This endpoint returns all customer devices by Device Type and Device Group
 - Device Type: This is the type of Altrac device -- an example would be `windMachine` which equals "Wind Machine". You can find values for this in the Customer Information query.
-- Device Group: This is the group the device belongs to -- an example from Customer Information above would be `Ranch Rayo`. Groups are used primarily to distinguish between ranches.
+- Device Group: This is the group the device belongs to -- an example from Customer Information above would be `Garden Valley`. Groups are used primarily to distinguish between ranches.
 
 Query:
 
@@ -113,234 +176,18 @@ curl --request GET \
 ```
 Response:
 
-The response below is one device. This will return an array of devices depending on the number of devices that meet the queries criteria.
+The response is an array of devices depending on the number of devices that meet the queries criteria. The data for each device will match that outlined below in Device Model.
 
-```javascript
+```JSON
 [
-  {
-    "id": "{device_id}",
-    "address": "{address}",
-    "application_settings": {
-      "date": "{date}",
-      "address": "{address}",
-      "user_id": "{user_id}",
-      "settings": {
-        "auto": 1,
-        "update": 0,
-        "tempStop": 1.67,
-        "tempStart": 0,
-        "calibrate1": 500,
-        "calibrate2": 1200,
-        "sleepInterval": 0
-      },
-      "created_at": "{date}",
-      "updated_at": "{date}"
-    },
-    "application_settings_new": {
-      "id": "{setting_id}",
-      "date": "{date}",
-      "status": "onDevice",
-      "address": "{address}",
-      "user_id": "{user_id}",
-      "settings": {
-        "update": 0,
-        "sleepInterval": 0
-      },
-      "created_at": "{date}",
-      "updated_at": "{date}"
-    },
-    "customer_id": "{customer_id}",
-    "customer_id_old": "",
-    "address_alias": "{altrac_internal_name}",
-    "created_at": "{date}",
-    "updated_at": "{date}",
-    "installed_at": null,
-    "interface": null,
-    "interface_id": "{interface_id}",
-    "physical": {
-      "rpmSensor": "default",
-      "deviceType": "windMachine",
-      "deviceGroup": "Ranch Rayo",
-      "deviceNumber": "{device_user_name}",
-      "rpmMultiplier": 0.6535947712418301
-    },
-    "configuration": {
-      "pcb": "endpoint_0305",
-      "imei": "{imei}",
-      "model": "windMachineOrchardRiteV10",
-      "sales": {
-        "invoice": "{invoice_number}"
-      },
-      "firmware": {
-        "osVersion": 393472,
-        "productId": 7725,
-        "application": 30575,
-        "boardVersion": 340,
-        "applicationVersion": 44
-      },
-      "simIccid": "{sim_iccid}",
-      "enclosure": "1.2B",
-      "pcbWiring": "1.3",
-      "subassemblies": [
-        {
-          "type": "Wiring Harness",
-          "model": "1.2"
-        },
-        {
-          "type": "Control Cable",
-          "model": "1.3b"
-        },
-        {
-          "type": "Temperature Probe",
-          "model": "1.3"
-        }
-      ],
-      "particleSerialNumber": "{serial_number}"
-    },
-    "reading0": {
-      "128": 15,
-      "129": 0.78,
-      "130": 0.555,
-      "131": 0,
-      "132": 1536880608,
-      "133": 0.001,
-      "134": 0,
-      "135": 0,
-      "140": 1,
-      "143": 10000,
-      "179": 22297,
-      "185": 128,
-      "186": 52,
-      "187": -10000,
-      "200": 0,
-      "201": 1.67,
-      "202": 1,
-      "date": "{date}",
-      "128Date": "{date}",
-      "129Date": "{date}",
-      "130Date": "{date}",
-      "131Date": "{date}",
-      "132Date": "{date}",
-      "133Date": "{date}",
-      "134Date": "{date}",
-      "135Date": "{date}",
-      "140Date": "{date}",
-      "143Date": "{date}",
-      "179Date": "{date}",
-      "185Date": "{date}",
-      "186Date": "{date}",
-      "187Date": "{date}",
-      "200Date": "{date}",
-      "201Date": "{date}",
-      "202Date": "{date}",
-      "address": "{address}"
-    },
-    "reading1": {
-      "128": 15,
-      "129": 0.78,
-      "130": 0.555,
-      "131": 0,
-      "132": 1536880608,
-      "133": 0.001,
-      "134": 0,
-      "135": 0,
-      "140": 1,
-      "143": 10000,
-      "179": 22297,
-      "185": 128,
-      "186": 52,
-      "187": -10000,
-      "200": 0,
-      "201": 1.67,
-      "202": 1,
-      "date": "{date}",
-      "128Date": "{date}",
-      "129Date": "{date}",
-      "130Date": "{date}",
-      "131Date": "{date}",
-      "132Date": "{date}",
-      "133Date": "{date}",
-      "134Date": "{date}",
-      "135Date": "{date}",
-      "140Date": "{date}",
-      "143Date": "{date}",
-      "179Date": "{date}",
-      "185Date": "{date}",
-      "186Date": "{date}",
-      "187Date": "{date}",
-      "200Date": "{date}",
-      "201Date": "{date}",
-      "202Date": "{date}",
-      "address": "{address}"
-    },
-    "interface_versioned": {
-      "data": {
-        "tile": {
-          "unit": "Temperature",
-          "formula": "temperature",
-          "valueKey": "128",
-          "multiplier": 1,
-          "unitAbbreviation": "°"
-        },
-        "other": {
-          "controller": "callToStart"
-        },
-        "primaryPage": {
-          "chart": "windMachine",
-          "rules": false,
-          "settingTypes": [
-            "temperatureSet"
-          ],
-          "physicalTypes": [],
-          "telemetryTypes": [
-            "settingAutoModeHauff",
-            "settingEngineState",
-            "rpm",
-            "temperature",
-            "batteryExternal"
-          ]
-        },
-        "advancedPage": {
-          "rules": true,
-          "settingTypes": [],
-          "physicalTypes": [
-            "deviceNumber",
-            "deviceGroup"
-          ],
-          "telemetryTypes": [
-            {
-              "unit": "%",
-              "label": "Internal Battery",
-              "formula": "default",
-              "valueKey": "129",
-              "multiplier": 0.01
-            },
-            {
-              "unit": "",
-              "label": "RSSI dB",
-              "formula": "cellSignalToRssi",
-              "valueKey": "179",
-              "multiplier": 1
-            }
-          ]
-        }
-      },
-      "type": "windMachine",
-      "subtype": "orchardRite",
-      "version": "1",
-      "created_at": "{date}",
-      "updated_at": "{date}",
-      "id": "{interface_id}"
-    }
-  }
+  { "example": "Device Model" },
+  { "example": "Device Model" },
+  { "example": "Device Model" }
 ]
 ```
 
 ## Device Model
 ### GET: Device by ID
-**_WARNING:_** This API endpoint will be changing in the near future:
-- The customer_id will be changing for a normalization effort
-- The address will be removed in for a normalization effort around the device ID
 
 This endpoint is used to get information about a specific device. It returns the same response as the above request for all devices of a certain type and group.
 
@@ -352,230 +199,239 @@ curl --request GET \
   --header 'authorization: Bearer {token}'
 ```
 Response:
-```javascript
+```JSON
 {
-  "id": "{device_id}",
-  "address": "{address}",
+  "id": "2197657034483041797",
+  "address": "3c0030000247373430333032",
   "application_settings": {
-    "date": "{date}",
-    "address": "{address}",
-    "user_id": "{user_id}",
+    "date": "2020-05-26T23: 44: 00.922Z",
+    "address": "3c0030000247373430333032",
+    "user_id": "1719045011913311727",
     "settings": {
+      "run": 0,
       "auto": 1,
       "update": 0,
-      "tempStop": 1.67,
-      "tempStart": 0,
-      "calibrate1": 500,
-      "calibrate2": 1200,
-      "sleepInterval": 0
+      "tempStop": 4.44,
+      "tempStart": 0.28,
+      "sleepInterval": 900
     },
-    "created_at": "{date}",
-    "updated_at": "{date}"
+    "created_at": "2020-05-26T23: 33: 38.856Z",
+    "updated_at": "2020-05-26T23: 34: 09.297Z"
   },
   "application_settings_new": {
-    "id": "{setting_id}",
-    "date": "{date}",
+    "id": "2317906584119805923",
+    "date": "2020-05-26T23: 44: 00.922Z",
     "status": "onDevice",
-    "address": "{address}",
-    "user_id": "{user_id}",
+    "address": "3c0030000247373430333032",
+    "user_id": "1719045011913311727",
     "settings": {
-      "update": 0,
-      "sleepInterval": 0
+      "tempStop": 4.44,
+      "tempStart": 0.28
     },
-    "created_at": "{date}",
-    "updated_at": "{date}"
+    "created_at": "2020-05-26T23: 33: 38.856Z",
+    "updated_at": "2020-05-26T23: 34: 09.297Z"
   },
-  "customer_id": "{customer_id}",
+  "customer_id": "1472639155912574382",
   "customer_id_old": "",
-  "address_alias": "{altrac_internal_name}",
-  "created_at": "{date}",
-  "updated_at": "{date}",
+  "address_alias": "WM36662",
+  "created_at": "2019-12-13T01: 39: 15.476Z",
+  "updated_at": "2020-07-10T10: 26: 22.383Z",
   "installed_at": null,
   "interface": null,
-  "interface_id": "{interface_id}",
+  "interface_id": "1738173727062885911",
+  "is_active": true,
+  "activated_at": null,
+  "deactivated_at": null,
+  "monitor_status": "none",
   "physical": {
-    "rpmSensor": "default",
     "deviceType": "windMachine",
-    "deviceGroup": "Ranch Rayo",
-    "deviceNumber": "{device_user_name}",
-    "rpmMultiplier": 0.6535947712418301
+    "deviceGroup": "Wind Machine",
+    "deviceNumber": "01S"
   },
-  "configuration": {
-    "pcb": "endpoint_0305",
-    "imei": "{imei}",
-    "model": "windMachineOrchardRiteV10",
-    "sales": {
-      "invoice": "{invoice_number}"
-    },
-    "firmware": {
-      "osVersion": 393472,
-      "productId": 7725,
-      "application": 30575,
-      "boardVersion": 340,
-      "applicationVersion": 44
-    },
-    "simIccid": "{sim_iccid}",
-    "enclosure": "1.2B",
-    "pcbWiring": "1.3",
-    "subassemblies": [
-      {
-        "type": "Wiring Harness",
-        "model": "1.2"
-      },
-      {
-        "type": "Control Cable",
-        "model": "1.3b"
-      },
-      {
-        "type": "Temperature Probe",
-        "model": "1.3"
-      }
-    ],
-    "particleSerialNumber": "{serial_number}"
-  },
+  "configuration": { ... },
   "reading0": {
-    "128": 15,
-    "129": 0.78,
-    "130": 0.555,
-    "131": 0,
-    "132": 1536880608,
-    "133": 0.001,
-    "134": 0,
-    "135": 0,
-    "140": 1,
-    "143": 10000,
-    "179": 22297,
-    "185": 128,
-    "186": 52,
-    "187": -10000,
-    "200": 0,
-    "201": 1.67,
-    "202": 1,
-    "date": "{date}",
-    "128Date": "{date}",
-    "129Date": "{date}",
-    "130Date": "{date}",
-    "131Date": "{date}",
-    "132Date": "{date}",
-    "133Date": "{date}",
-    "134Date": "{date}",
-    "135Date": "{date}",
-    "140Date": "{date}",
-    "143Date": "{date}",
-    "179Date": "{date}",
-    "185Date": "{date}",
-    "186Date": "{date}",
-    "187Date": "{date}",
-    "200Date": "{date}",
-    "201Date": "{date}",
-    "202Date": "{date}",
-    "address": "{address}"
+    "128": 26.75,
+    "129": 0.8,
+    "130": 0.635,
+    ... (more reading data)
   },
   "reading1": {
-    "128": 15,
-    "129": 0.78,
-    "130": 0.555,
-    "131": 0,
-    "132": 1536880608,
-    "133": 0.001,
-    "134": 0,
-    "135": 0,
-    "140": 1,
-    "143": 10000,
-    "179": 22297,
-    "185": 128,
-    "186": 52,
-    "187": -10000,
-    "200": 0,
-    "201": 1.67,
-    "202": 1,
-    "date": "{date}",
-    "128Date": "{date}",
-    "129Date": "{date}",
-    "130Date": "{date}",
-    "131Date": "{date}",
-    "132Date": "{date}",
-    "133Date": "{date}",
-    "134Date": "{date}",
-    "135Date": "{date}",
-    "140Date": "{date}",
-    "143Date": "{date}",
-    "179Date": "{date}",
-    "185Date": "{date}",
-    "186Date": "{date}",
-    "187Date": "{date}",
-    "200Date": "{date}",
-    "201Date": "{date}",
-    "202Date": "{date}",
-    "address": "{address}"
+    "128": 26.75,
+    "129": 0.8,
+    "130": 0.635
+    ... (more reading data)
   },
-  "interface_versioned": {
-    "data": {
-      "tile": {
-        "unit": "Temperature",
-        "formula": "temperature",
-        "valueKey": "128",
-        "multiplier": 1,
-        "unitAbbreviation": "°"
-      },
-      "other": {
-        "controller": "callToStart"
-      },
-      "primaryPage": {
-        "chart": "windMachine",
-        "rules": false,
-        "settingTypes": [
-          "temperatureSet"
-        ],
-        "physicalTypes": [],
-        "telemetryTypes": [
-          "settingAutoModeHauff",
-          "settingEngineState",
-          "rpm",
-          "temperature",
-          "batteryExternal"
-        ]
-      },
-      "advancedPage": {
-        "rules": true,
-        "settingTypes": [],
-        "physicalTypes": [
-          "deviceNumber",
-          "deviceGroup"
-        ],
-        "telemetryTypes": [
-          {
-            "unit": "%",
-            "label": "Internal Battery",
-            "formula": "default",
-            "valueKey": "129",
-            "multiplier": 0.01
-          },
-          {
-            "unit": "",
-            "label": "RSSI dB",
-            "formula": "cellSignalToRssi",
-            "valueKey": "179",
-            "multiplier": 1
-          }
-        ]
-      }
-    },
-    "type": "windMachine",
-    "subtype": "orchardRite",
-    "version": "1",
-    "created_at": "{date}",
-    "updated_at": "{date}",
-    "id": "{interface_id}"
-  }
+  "interface_versioned": { ... }
 }
 ```
+
+#### Data Fields
+
+* address
+  - string
+  - cellular network ID of device
+
+* address_alias
+  - string
+  - display name of device
+
+* application_settings
+  - Object
+  - current device configuration
+
+* application_settings_new
+  - Object
+  - device configuration change values - either waiting to be applied, or the last change that has been applied
+
+* auto 
+  - integer
+  - auto start mode
+
+| value | description  |
+|:-----:|:-------------|
+|   1   | AUTO start   |
+|   0   | MANUAL start |
+
+* date
+  - string ISO UTC date
+
+* configuration
+  - Object
+  - Altrac internal data - please ignore
+
+* customer_id
+  - string
+
+* customer_id_old
+  - string
+  - deprecated - please ignore
+
+* deviceGroup
+  - string
+  - an arbitrary group of devices of a certain type that will be grouped together on UI panels and in reports
+
+* deviceNumber
+  - string
+  - additional device alias for display to user in UI and reports
+
+* deviceType 
+  - string
+  - equipment type controlled by device
+
+| deviceType     | description                            |
+|:---------------|:---------------------------------------|
+| binDicator     | automated storage bin                  |
+| coldAirDrain   | fan similar in purpose to wind machine |
+| flow           | flow sensor                            |
+| moistureSensor | moisture sensor                        |
+| pump           | pump                                   |
+| pumpFrostWater | water sprayer pump                     |
+| temperature    | weather station                        |
+| valve          | valve                                  |
+| windMachine    | machine                                |
+
+* interface
+  - Object 
+  - internal use - please ignore
+
+* interface_id
+  - string 
+  - internal use - please ignore
+
+* interface_versioned
+  - Object 
+  - internal use - please ignore
+
+* monitor_status
+  - string
+ 
+|       value       | description                                   |
+|:-----------------:|:----------------------------------------------|
+|     noAlerts      | alerts are suspended for this device          |
+|      triage       | problem detected requiring manual examination |
+|       none        | monitored                                     |
+| offlineSeasonally | alerts temporarily suspended                  |
+
+* physical
+  - Object 
+  - low level detail elements of machine configuration
+
+* reading0
+  - Object
+  - last raw device reading sent
+
+* reading1
+  - Object
+  - second last raw device reading sent
+
+* run
+  - integer
+ 
+| value | description |
+|:-----:|:------------|
+|   1   | running     |
+|   0   | stopped     |
+ - integer
+
+* settings
+  - Object
+  - device configuration values
+
+* sleep_interval 
+  - integer seconds
+  - interval between sending readings
+
+* status
+  - string
+ 
+|  value   | description                                |
+|:--------:|:-------------------------------------------|
+|   new    | change has not been acknowledged by device |
+| onDevice | change has been applied                    |
+
+* tempStart
+  - float °C
+  - when ambient temperature is below this value start signal will be sent to the controlled equipment when machine is in AUTO START mode
+
+* tempStop
+  - float °C
+  - when ambient temperature is above this value stop signal will be sent to the controlled equipment when machine is in AUTO START mode
+
+* type
+  - string
+  - see ***deviceType***
+
+* user_id
+  - string
+  - ID of user who performed last update
+
+## Device Model
+### GET: Device by Address
+
+A device can also be retrieved using its **address** (cellular network identity). This endpoint is used primarily to obtain devices that share the same address. It returns an array of device models that match the address provided. Multiple device IDs for the same address are used when device functionality needs to be split between multiple user interface objects.
+
+Query:
+
+```Shell
+curl --request GET \
+  --url 'https://altrac-api.com/devices/{device_id}' \
+  --header 'authorization: Bearer {token}'
+```
+Response:
+
+The response is an array of devices depending on the number of devices that share the same address. The data for each device will match that outlined below in Device Model.
+
+```JSON
+[
+  { "example": "Device Model", "address": "identical" },
+  { "example": "Device Model", "address": "identical" },
+  { "example": "Device Model", "address": "identical" }
+]
+```
+
 ## Reading Model
 ### GET: Readings for a Device
 This endpoint supplies readings (sensor) information for a given device address
-
-**_WARNING:_** This API endpoint will be changing in the near future:
-- The address will be removed from these responses in the future in favor of the device's id
 
 Query:
 
@@ -585,7 +441,7 @@ curl --request GET \
   --header 'authorization: Bearer {token}'
 ```
 Response:
-```javascript
+```JSON
 {
   "Items": [
     {
@@ -721,7 +577,7 @@ Fields Key:
 | 137     | not saved                                          |                                                                                                                                    |
 | 138     | power-current                                      | %                                                                                                                                  |
 | 139     | power-frequency                                    | Hz                                                                                                                                 |
-| 140     | Engine State                                       | 1-12 value of engine states. To be documented in detail later. 1 = Idle, 6 = Warmup, 8 = False Start, 12 = Full Run, 13 = Cooldown |
+| 140     | Engine State                                       | 1-12 value of engine states. To be documented in detail later. 1 = Idle, 6 = Warmup, 8 = False Start, 12 = Full Run, 13 = Cool down |
 | 140     | vapor pressure                                     | kPa                                                                                                                                |
 | 140     | moisture-1                                         |                                                                                                                                    |
 | 141     | shutdown-status                                    |                                                                                                                                    |
@@ -734,8 +590,8 @@ Fields Key:
 | 143     | Auto Switch                                        | Analog value of temperature switch. 0 - 10000 converts to 0 - 100%. Should be 100% when auto switch is in auto position            |
 | 143     | controller-status-auto                             |                                                                                                                                    |
 | 143     | solar                                              | W/m2                                                                                                                               |
-| 144     | controller-status-auto (controller-status-modbus?) |                                                                                                                                    |
-| 144     | precip now                                         | mm                                                                                                                                 |
+| 144     | controller-status-auto (controller-status-modbus) |                                                                                                                                    |
+| 144     | precipitation now                                         | mm                                                                                                                                 |
 | 145     | pond level                                         |                                                                                                                                    |
 | 145     | strikes                                            |                                                                                                                                    |
 | 146     | strike dist                                        | km                                                                                                                                 |
@@ -752,22 +608,83 @@ Fields Key:
 | 185     | power-fault                                        |                                                                                                                                    |
 | 186     | power-state                                        |                                                                                                                                    |
 | 187     | humidity temp                                      |                                                                                                                                    |
-| 200     | Temperature Start Setting confirmed by device      | °C                                                                                                                                  |
-| 201     | Temperature Stop Setting confirmed by device       | °C                                                                                                                                  |
+| 200     | Temperature Start Setting confirmed by device      | °C                                                                                                                                 |
+| 201     | Temperature Stop Setting confirmed by device       | °C                                                                                                                                 |
 | 202     | Auto mode confirmed by device                      | 1 = Auto, 0 = Manual                                                                                                               |
 | 203     | manual run state confirmed by device               | On/Off boolean                                                                                                                     |
 | 33 - 48 | temperature values                                 | °C                                                                                                                                 |
 | date    | Date of Reading                                    | ISO-8601 date format                                                                                                               |
 
+### GET: Readings for a Device -- Data Translated and Converted -- ***EXPERIMENTAL***
+This endpoint supplies readings (sensor) information for a given device address. The readings are translated and converted for ease of use
+
+Query:
+
+```Shell
+curl --request GET \
+  --url 'https://altrac-api.com/readings/address/{address}?=&dateBegin={date_begin}&dateEnd={date_end}&convert=true' \
+  --header 'authorization: Bearer {token}'
+```
+Response:
+```JSON
+[
+  {
+    "date": "2020-07-15T21:24:38.000Z",
+    "temperature": 1,
+    "engineState": 12,
+    "callToRun": 1,
+    "rpm": 2482,
+    "batteryExternalV": 12.2,
+    "fuelLevel": "Not Connected",
+    "startTemperature": 0,
+    "stopTemperature": 1.1,
+    "autoMode": 1
+  },
+  {
+    "date": "2020-07-15T21:22:32.000Z",
+    "temperature": 1,
+    "engineState": 12,
+    "callToRun": 1,
+    "rpm": 2532,
+    "batteryExternalV": 12.2,
+    "fuelLevel": "Not Connected",
+    "startTemperature": 0,
+    "stopTemperature": 1.1,
+    "autoMode": 1
+  },
+  {
+    "date": "2020-07-15T21:20:25.000Z",
+    "temperature": 1,
+    "engineState": 12,
+    "callToRun": 1,
+    "rpm": 2462,
+    "batteryExternalV": 12.2,
+    "fuelLevel": "Not Connected",
+    "startTemperature": 0,
+    "stopTemperature": 1.1,
+    "autoMode": 1
+  },
+  {
+    "date": "2020-07-15T21:18:19.000Z",
+    "temperature": 1,
+    "engineState": 12,
+    "callToRun": 1,
+    "rpm": 2472,
+    "batteryExternalV": 12.2,
+    "fuelLevel": "Not Connected",
+    "startTemperature": 0,
+    "stopTemperature": 1.1,
+    "autoMode": 1
+  }
+]
+```
 
 ## Settings Model
 ### POST: Create a new setting for a device
-**_WARNING:_** This API endpoint will be changing in the near future:
-- The address field will be changed to device_id related to our normalization effort around the device ID
 
 This endpoint is used to send a setting to a device. 
 
-The endpoint automatically merges settings that are going to the same devie which still have the status "new". For example, you could send a setting payload for a device that just has the "tempStart" settings, then follow it with a setting for a device with the "tempStop" setting. These two will be merged together in the backend and sent to the device in one payload. 
+The endpoint automatically merges settings that are going to the same device which still have the status "new". For example, you could send a setting payload for a device that just has the "tempStart" settings, then follow it with a setting for a device with the "tempStop" setting. These two will be merged together in the backend and sent to the device in one payload. 
 
 Once a setting is created for a device, the device model property "application_settings_new" will be updated with the setting status. Once the setting has been sent to the device, the device model properties "application_settings" and "application_settings_new" will be updated, reflecting status. To be sure a setting has been accepted, you should also check the latest reading on the device model for the properties "200", "201" and "202", please reference above for their meaning.
 
@@ -807,11 +724,15 @@ Response:
 ]
 ```
 
-Settings Avaiable for Wind Machines
+Settings available for Wind Machines
 
-|Field|Purpose|Unit / Value|
-|------|-------|------|
-|tempStart|Set the start temperature|Celsius, must be less than tempStop or device will overwrite|
-|tempStop|Set the stop temperature|Celsius, must be greater than tempStart or device will overwrite|
-|auto|Turn Altrac device auto mode on or off|Auto = 1, Manual = 0|
-|run|Turn machine off|0 = Turn machine off, sending 1 for manual run will have no effect, by design.|
+| Field     | Purpose                                | Unit / Value                                                                   |
+|-----------|----------------------------------------|--------------------------------------------------------------------------------|
+| tempStart | Set the start temperature              | Celsius, must be less than tempStop or device will overwrite                   |
+| tempStop  | Set the stop temperature               | Celsius, must be greater than tempStart or device will overwrite               |
+| auto      | Turn Altrac device auto mode on or off | Auto = 1, Manual = 0                                                           |
+| run       | Turn machine off                       | 0 = Turn machine off, sending 1 for manual run will have no effect, by design. |
+
+Settings available for Pumps and Valves
+
+***TBD***
