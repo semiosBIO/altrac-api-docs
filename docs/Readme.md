@@ -447,64 +447,42 @@ const getADeviceWithAddress = async (credentials, address) => {
 }
 ```
 ### Settings
-#### Reading device settings
-```javascript
-/**
- * @function getSettingsWithAddress
- * @description request settings for device using device address
- * @param {Credentials} credentials
- * @param {string} address
- * @returns {Device}
- */
- const getSettingsWithAddress = async (credentials, address) => {
-  try {
-    const {
-      settings,
-    } = altrac(credentials);
-
-    const settingsList = await settings.getOnAddress(address, {
-      params: {
-        limit: 10,
-        status: 'onDevice',
-      }
-    });
-    return settingsList;
-  } catch (e) {
-    console.error(`\nERROR getSettingsWithAddress ${e}\n`);
-  }
-}
-```
-
 #### Updating device settings
 ```javascript
-
 /**
  * @function updateSettings
  * @description this example shows update to settings for a single device,
  *  multiple devices may also be updated using the settings.post function.
  * @param {Credentials} credentials
  * @param {string} address
- * @param {<Object>} settings
+ * @param {Array} settingsValues
  * @returns {Device}
  */
- const updateSettings = async (credentials, address, settings) => {
+ const updateSettings = async (credentials, address, settingsValues) => {
   try {
     const {
       settings,
     } = altrac(credentials);
 
-    const updatedSettings = await settings.post([{ address, settings }]);
+    // The sinble argument to the settings.post function is an Array of Settings for different
+    // devices, allowing multiple devices to be updated at once, for
+    // example starting/stopping all of the wind machines in a group is possible
+    // by providing settings for each device.
+    // In this example 1 device is updated.
+    const updatedSettings = await settings.post([{
+      address,
+      settings: settingsValues,
+    }]);
+
     return updatedSettings;
   } catch (e) {
-    console.error(`\nERROR getSettingsWithAddress ${e}\n`);
+    console.log(JSON.stringify(e));
+    handleError(`updateSettings address: ${address}`, e);
   }
 }
-
 ```
 
 #### Data Fields
-* application
-
 * auto
   - integer
 
@@ -512,7 +490,6 @@ const getADeviceWithAddress = async (credentials, address) => {
   | :---: | :----------  |
   | 0     | MANUAL start |
   | 1     | AUTO start   |
-
 
 * run
   - integer
@@ -525,8 +502,6 @@ const getADeviceWithAddress = async (credentials, address) => {
 * sleepInterval
   - integer seconds
 
-* subApplication
-
 * tempStart
   - float °C
   - when ambient temperature is below this value start signal will be sent to the controlled equipment when machine is in AUTO START mode
@@ -534,6 +509,15 @@ const getADeviceWithAddress = async (credentials, address) => {
 * tempStop
   - float °C
   - when ambient temperature is above this value stop signal will be sent to the controlled equipment when machine is in AUTO START mode
+
+* update
+  - integer
+  - device firmware auto update mode
+
+  | value | description |
+  | :---: | :---------- |
+  | 0     | OFF         |
+  | 1     | ON          |
 
 ### Readings
 
