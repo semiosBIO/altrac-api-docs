@@ -636,8 +636,8 @@ Response:
     "rpm": 2482,
     "batteryExternalV": 12.2,
     "fuelLevel": "Not Connected",
-    "startTemperature": 0,
-    "stopTemperature": 1.1,
+    "temperatureStart": 0,
+    "temperatureStop": 1.1,
     "autoMode": 1
   },
   {
@@ -648,8 +648,8 @@ Response:
     "rpm": 2532,
     "batteryExternalV": 12.2,
     "fuelLevel": "Not Connected",
-    "startTemperature": 0,
-    "stopTemperature": 1.1,
+    "temperatureStart": 0,
+    "temperatureStop": 1.1,
     "autoMode": 1
   },
   {
@@ -660,8 +660,8 @@ Response:
     "rpm": 2462,
     "batteryExternalV": 12.2,
     "fuelLevel": "Not Connected",
-    "startTemperature": 0,
-    "stopTemperature": 1.1,
+    "temperatureStart": 0,
+    "temperatureStop": 1.1,
     "autoMode": 1
   },
   {
@@ -672,8 +672,8 @@ Response:
     "rpm": 2472,
     "batteryExternalV": 12.2,
     "fuelLevel": "Not Connected",
-    "startTemperature": 0,
-    "stopTemperature": 1.1,
+    "temperatureStart": 0,
+    "temperatureStop": 1.1,
     "autoMode": 1
   }
 ]
