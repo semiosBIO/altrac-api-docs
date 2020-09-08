@@ -386,7 +386,6 @@ example of Device record returned (condensed for values that can be ignored):
   | :---: | :---------- |
   | 1     | running     |
   | 0     | stopped     |
- - integer
 
 * settings
   - Object
