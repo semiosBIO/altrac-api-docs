@@ -406,15 +406,15 @@ Response:
   - ID of user who performed last update
 
 ## Device Model
-### GET: Device by Address
+### GET: Devices by Address
 
-A device can also be retrieved using its **address** (cellular network identity). This endpoint is used primarily to obtain devices that share the same address. It returns an array of device models that match the address provided. Multiple device IDs for the same address are used when device functionality needs to be split between multiple user interface objects.
+Devices can also be retrieved using an **address** (cellular network identity). This endpoint is used primarily to obtain devices that share the same address. It returns an array of Devices that match the address provided. Multiple device IDs for the same address are used when device functionality needs to be split between multiple user interface objects.
 
 Query:
 
 ```Shell
 curl --request GET \
-  --url 'https://altrac-api.com/devices/{device_id}' \
+  --url 'https://altrac-api.com/devices/address/{address}' \
   --header 'authorization: Bearer {token}'
 ```
 Response:
