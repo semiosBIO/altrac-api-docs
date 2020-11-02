@@ -431,10 +431,17 @@ The response is an array of devices depending on the number of devices that shar
 
 ## Reading Model
 ### GET: Readings for a Device
-This endpoint supplies readings (sensor) information for a given device address
+This endpoint supplies readings (sensor) information for a given device id or address
 
 Query:
 
+By device ID:
+```Shell
+curl --request GET \
+  --url 'https://altrac-api.com/readings/deviceId/{deviceId}?=&dateBegin={date_begin}&dateEnd={date_end}' \
+  --header 'authorization: Bearer {token}'
+```
+By device address:
 ```Shell
 curl --request GET \
   --url 'https://altrac-api.com/readings/address/{address}?=&dateBegin={date_begin}&dateEnd={date_end}' \
@@ -616,10 +623,18 @@ Fields Key:
 | date    | Date of Reading                                    | ISO-8601 date format                                                                                                               |
 
 ### GET: Readings for a Device -- Data Translated and Converted -- ***EXPERIMENTAL***
-This endpoint supplies readings (sensor) information for a given device address. The readings are translated and converted for ease of use
+This endpoint supplies readings (sensor) information for a given device address or ID. The readings are translated and converted for ease of use
 
 Query:
 
+
+By device ID:
+```Shell
+curl --request GET \
+  --url 'https://altrac-api.com/readings/deviceId/{address}?=&dateBegin={date_begin}&dateEnd={date_end}&convert=true' \
+  --header 'authorization: Bearer {token}'
+```
+By device address:
 ```Shell
 curl --request GET \
   --url 'https://altrac-api.com/readings/address/{address}?=&dateBegin={date_begin}&dateEnd={date_end}&convert=true' \
