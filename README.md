@@ -1,76 +1,86 @@
-# altrac-api-client
+# Altrac API Documentation
+## Authentication
 
-## API Client NodeJS library
+There are two authentication paths:
+1. User credential authentication, documented below
+2. API client authentication, see https://github.com/altracio/altrac-api-client
 
-Initially Altrac is providing a NodeJS library capable of communicating with the Altrac System.
-
-### API Version
-To avoid incompatibilities between versions of the back-end code a version ID in the form `YYYY.MM.DD` may be provided, there is only 1 currently available version - `2018.11.30`.
-
-The API version is set in the HTTP request header as the variable `accept-version`, example:
-
-```accept-version: 2018.11.30```
-
-## Credentials
-
-Access to the Altrac system is controlled via credentials.
-
-Credentials are generated uniquely for each customer at the customer's request and are not stored within Altrac. If credentials for a customer are lost Altrac must be contacted to generate a new set.
-
-Credentials are composed of: 
-* API_KEY
-    - identifies the access to data for _a single customer_
-
-* API_SECRET
-    - password for the access to the individual customer
-
-* API_VERSION
-    - as discussed above
-
-A successful authorization will return the relevant customer_id.
-
-### secrets.js
-
-This file provides the credentials to the api-client library to be used by the example code `example.js`. 
-
-**This file is not used in a production system.**
-
-The ```secrets.js``` file should be edited to include the API_KEY and API_SECRET provided, example: 
+### POST: User Credential Login
+Request:
+```Shell
+curl --request POST \
+  --url https://altrac-api.com/users/login \
+  --header 'content-type: application/json' \
+  --data '{
+  "email": "{email}",
+  "password": "{password}"
+}'
+```
+Response:
 ```javascript
-const API_KEY='a7dace06dbe8be7100de7c78b6580f07'
-const API_SECRET='jMevPbh4NCFb1qW4ikkUzw=='
-module.exports = { API_KEY, API_SECRET };
+{
+  "id": "{id}",
+  "email": "{email}",
+  "first_name": null,
+  "last_name": null,
+  "company": null,
+  "position": null,
+  "country": null,
+  "state": null,
+  "city": null,
+  "main_phone": null,
+  "secondary_phone": null,
+  "address": null,
+  "zip_code": null,
+  "customer_id": null,
+  "token": "{token}"
+}
+```
+You will be able to use the token generated in the response in order to perform the queries detailed below.
+
+## User Model
+### GET: User Information
+This endpoint supplies the customer_id needed for other queries below.
+
+Query:
+
+```Shell
+curl --request GET \
+  --url https://altrac-api.com/users/authID \
+  --header 'authorization: Bearer {token}'
+```
+Response:
+```javascript
+{
+  "id": "{user_id}",
+  "customer_id": "{customer_id}",
+  "locale": {
+    "tempConv": "f"
+  },
+  "permissions": {
+    "pin": "{hash}",
+    "level": 0 // {permission_level}
+  },
+  "created_at": "{date}",
+  "updated_at": "{date}",
+  "email": "{email}",
+  "name": "{nickname}"
+}
 ```
 
-## Entities
+## Customer Model
+### GET: Customer by ID
 
-The ```example.js``` file illustrates the use of the following access functions for entities in the Altrac system.
+This endpoint is used by the web application to determine what applications the customer has and to build links for these applications.
 
-All requests to the Altrac client api return data encoded in JSON format.
+Query:
 
-### AltracClient Object
-AltracClient is a Javascript Class that can be used to control the interaction with the Altrac API.
-
-Each instance of AlracClient implements HTTP communication while maintaining the authentication token for a single customer.
-
-For each customer a new instance of the object should be created with the customer's credentials provided to the constructor:
-
-```javascript
-const altracClientForCustomerA = new AltraClient(customerACredentials);
+```Shell
+curl --request GET \
+  --url 'https://altrac-api.com/customers/{customer_id}' \
+  --header 'authorization: Bearer {token}'
 ```
-During construction the client instance will automatically authenticate with the API back end, and will keep the authentication current for all future communication.
-
-see: [AlracClient detailed documentation](http://github.com/altrac/altrac-api-client/docs/AltracClient.html)
-### Customers
-#### Reading the Customer Record
-
-In the Altrac system each Customer has detailed information that can be accessed.
-```javascript
-let customer = await altracClient1
-  .get("customers", { id: customerID })
-  .catch(error => console.log(error));
-```
-example of Customer record:  
+Response:
 ```JSON
 {
   "id": "112345678901234567890",
@@ -90,7 +100,7 @@ example of Customer record:
     },{
       "name": "Wind Machines",
       "deviceType": "windMachine",
-      "deviceGroup": "Wind Machine"
+      "deviceGroup": "Garden Valley"
     },{
       "name": "Weather",
       "deviceType": "temperature",
@@ -106,7 +116,6 @@ example of Customer record:
   "brand": { "name": "altrac", ... }
 }
 ```
-
 #### Data Fields
 * id
   - string
@@ -152,47 +161,44 @@ example of Customer record:
 | true  | supported by the system                 |
 | false | customer is not supported by the system |
 
-#### Reading the Customer's Device Details
+### GET: All Customer Devices by Type and Group
 
-Altrac Devices control one or more pieces of equipment.
+This endpoint returns all customer devices by Device Type and Device Group
+- Device Type: This is the type of Altrac device -- an example would be `windMachine` which equals "Wind Machine". You can find values for this in the Customer Information query.
+- Device Group: This is the group the device belongs to -- an example from Customer Information above would be `Garden Valley`. Groups are used primarily to distinguish between ranches.
 
-Typically customers who own many devices can *group* devices together for easier organization of their view into the system.
+Query:
 
-To request a collection of *all* of the devices owned by a customer the **deviceGroup** parameter may be left out in the following example.
-
-If converted readings are needed, pass the param convert=true
-
-```javascript
-  const windMachineGroup = customer.applications.find(
-    (group) => group.name === "Wind Machines"
-  );
-  let groupName = windMachineGroup.name;
-  let groupID = windMachineGroup.groupID;
-
-  let params = { convert: true, includeDevices: true };
-
-  // get a list of devices in a customer's group
-  let group = await altracClient1
-    .get("groups", { id: groupID, params })
-    .catch((error) => handleError(error));
-
-  let { devices: deviceList } = group;
-
+```Shell
+curl --request GET \
+  --url 'https://altrac-api.com/customers/{customer_id}/devices?deviceType={deviceType}&deviceGroup={deviceGroup}' \
+  --header 'authorization: Bearer {token}'
 ```
-### Devices
+Response:
 
-#### Device details from deviceID
+The response is an array of devices depending on the number of devices that meet the queries criteria. The data for each device will match that outlined below in Device Model.
 
-A single device record can be retrieved using its **deviceID**.
-```javascript
-let device = await altracClient1
-  .get("devices", {
-    id: deviceID,
-    params: { convert: true, is_active: true },
-  })
-  .catch((error) => handleError(error));
+```JSON
+[
+  { "example": "Device Model" },
+  { "example": "Device Model" },
+  { "example": "Device Model" }
+]
 ```
-example of Device record returned (condensed for values that can be ignored): 
+
+## Device Model
+### GET: Device by ID
+
+This endpoint is used to get information about a specific device. It returns the same response as the above request for all devices of a certain type and group.
+
+Query:
+
+```Shell
+curl --request GET \
+  --url 'https://altrac-api.com/devices/{device_id}' \
+  --header 'authorization: Bearer {token}'
+```
+Response:
 ```JSON
 {
   "id": "2197657034483041797",
@@ -353,12 +359,10 @@ example of Device record returned (condensed for values that can be ignored):
 * reading0
   - Object
   - last raw device reading sent
-  - If the option convert = true is passed, reading0 will be converted as per below
 
 * reading1
   - Object
   - second last raw device reading sent
-  - If the option convert = true is passed, reading0 will be converted as per below
 
 * run
   - integer
@@ -401,222 +405,349 @@ example of Device record returned (condensed for values that can be ignored):
   - string
   - ID of user who performed last update
 
-#### Device details from device address
+## Device Model
+### GET: Devices by Address
 
-A device can also be retrieved using its **address** (cellular network identity).
-```javascript
-deviceList = await altracClient1
-  .get(`devices/address/${address}`, { params: { convert: true } })
-  .catch((error) => handleError(error));
+Devices can also be retrieved using an **address** (cellular network identity). This endpoint is used primarily to obtain devices that share the same address. It returns an array of Devices that match the address provided. Multiple device IDs for the same address are used when device functionality needs to be split between multiple user interface objects.
+
+Query:
+
+```Shell
+curl --request GET \
+  --url 'https://altrac-api.com/devices/address/{address}' \
+  --header 'authorization: Bearer {token}'
 ```
-### Readings
+Response:
 
-Devices report their status periodically as Readings. The frequency at which they report is based on a number of factors including whether the equipment that they are controlling is currently operating, the state of the internal battery and possibly other factors such as weather conditions, date and time.
+The response is an array of devices depending on the number of devices that share the same address. The data for each device will match that outlined below in Device Model.
 
-Readings include values from sensors, control input and output values and device diagnostics.
-
-#### Reading device telemetry data
-
-##### getReadingsWithAddress
-Wind Machine sensor data readings may be retrieved using the device **address**.
-
-***WARNING*** The below function and this library use the flag `convert: true`. By setting this flag to true, our API is doing a conversion from raw data to easily parsable data. The feature is new and ***EXPERIMENTAL***. We welcome input on the feature in order to make it robust and easily understandable.
-
-```javascript
-const readingsWithAddress = await altracClient1
-  .get(`readings/address/${address}`, { params: { customerID, convert: true } })
-  .catch((error) => handleError(error));
-
-```
-
-##### getReadingsWithDeviceId
-Wind Machine sensor data readings may be retrieved using **deviceID**.
-
-***WARNING*** The below function and this library use the flag `convert: true`. By setting this flag to true, our API is doing a conversion from raw data to easily parsable data. The feature is new and ***EXPERIMENTAL***. We welcome input on the feature in order to make it robust and easily understandable.
-
-```javascript
-const readingsWithDeviceID = await altracClient1
-  .get(`readings/deviceId/${deviceID}`,
-    {
-      params: {
-        dateBegin,
-        dateEnd,
-        convert: true
-      }
-    }
-  )
-  .catch((error) => handleError(error));
-```
-
-Example of wind machine Reading response: 
 ```JSON
 [
-  {
-    "date": "2020-07-10T19: 46: 45.000Z",
-    "temperature": 26.6,
-    "internalBattery": 80,
-    "rssiDb": 69,
-    "engineState": 1,
-    "running": 0,
-    "rpm": 0,
-    "batteryExternalV": 13.7,
-    "fuelLevel": "Not Connected",
-    "temperatureStart": 0.3,
-    "temperatureStop": 4.4,
-    "autoMode": 1
-  },
-  ... (additional readings)
+  { "example": "Device Model", "address": "identical" },
+  { "example": "Device Model", "address": "identical" },
+  { "example": "Device Model", "address": "identical" }
 ]
 ```
-*Note*:  returned reading data that is invalid will be indicated by the value "ERR".
 
-#### Data Fields
-* date
-  - string ISO UTC date
+## Reading Model
+### GET: Readings for a Device
+This endpoint supplies readings (sensor) information for a given device id or address
 
-* engineState
-  - integer value in range 0-16
+Query:
 
-| value | description                  |
-|:-----:|:-----------------------------|
-|  0    | Is in ECU delay              |
-|  1    | Is stopped                   |
-|  2    | Controller in standby |
-|  3    | In prestart delay 1          |
-|  4    | In checksafe                 |
-|  5    | In prestart delay 2          |
-|  6    | Crank on                     |
-|  7    | Crank rest                   |
-|  8    | False start                  |
-|  9    | In warmup delay              |
-| 10    | In line fill 1               |
-| 11    | In line fill 2               |
-| 12    | Running loaded               |
-| 13    | In cooldown delay            |
-| 14    | Energize to stop             |
-| 15    | In spindown delay            |
-| 16    | In wait to start delay       |
-| >16   | Unexpected engine state      |
-
-Example code for condensing this into five understandable states:
-```javascript
-switch (engineState) {
-  case 0:
-  case 1:
-  case 2:
-    engineState = MACHINE_OFF;
-    if (engineStateTransition) { engineState = engineStateTransition === 2 ? MACHINE_OFF : MACHINE_RUN; }
-    tileColor = colors.normal;
-    break;
-  case 3:
-  case 4:
-  case 5:
-  case 6:
-  case 7:
-  case 8:
-    engineState = MACHINE_START;
-    if (engineStateTransition) { engineState = engineStateTransition === 2 ? MACHINE_STOP : MACHINE_START; }
-    tileColor = colors.info;
-    break;
-  case 9:
-    engineState = MACHINE_WARMUP;
-    if (engineStateTransition) { engineState = engineStateTransition === 2 ? MACHINE_STOP : MACHINE_WARMUP; }
-    tileColor = colors.info;
-    break;
-  case 10:
-  case 11:
-  case 12:
-    engineState = MACHINE_FULLRUN;
-    if (engineStateTransition) { engineState = engineStateTransition === 2 ? MACHINE_STOP : MACHINE_FULLRUN; }
-    tileColor = colors.success;
-    break;
-  case 13:
-  case 14:
-  case 15:
-  case 16:
-    engineState = MACHINE_COOLDOWN;
-    if (engineStateTransition) { engineState = engineStateTransition === 2 ? MACHINE_COOLDOWN : MACHINE_RUN; }
-    tileColor = colors.info;
-    break;
-  default:
-    engineState = '-';
-    tileColor = colors.danger;
+By device ID:
+```Shell
+curl --request GET \
+  --url 'https://altrac-api.com/readings/deviceId/{deviceId}?=&dateBegin={date_begin}&dateEnd={date_end}' \
+  --header 'authorization: Bearer {token}'
+```
+By device address:
+```Shell
+curl --request GET \
+  --url 'https://altrac-api.com/readings/address/{address}?=&dateBegin={date_begin}&dateEnd={date_end}' \
+  --header 'authorization: Bearer {token}'
+```
+Response:
+```JSON
+{
+  "Items": [
+    {
+      "128": 17.87,
+      "129": 0.79,
+      "130": 0.575,
+      "131": 0,
+      "132": 1536875539,
+      "133": 0.001,
+      "134": 0,
+      "135": 60,
+      "140": 1,
+      "143": 0,
+      "179": 21785,
+      "186": 52,
+      "187": -10000,
+      "200": 0,
+      "201": 1.67,
+      "202": 1,
+      "address": "{address}",
+      "date": "2018-10-02T16:58:50.000Z"
+    },
+    {
+      "128": 17.87,
+      "129": 0.79,
+      "130": 0.575,
+      "131": 0,
+      "132": 1536875539,
+      "133": 0.001,
+      "134": 0,
+      "135": 60,
+      "140": 1,
+      "143": 0,
+      "179": 21785,
+      "186": 52,
+      "187": -10000,
+      "200": 0,
+      "201": 1.67,
+      "202": 1,
+      "address": "{address}",
+      "date": "2018-10-02T16:57:27.000Z"
+    },
+    {
+      "128": 17.87,
+      "129": 0.79,
+      "130": 0.575,
+      "131": 0,
+      "132": 1536875539,
+      "133": 0.001,
+      "134": 0,
+      "135": 60,
+      "140": 1,
+      "143": 0,
+      "179": 21785,
+      "186": 52,
+      "187": -10000,
+      "200": 0,
+      "201": 1.67,
+      "202": 1,
+      "address": "{address}",
+      "date": "2018-10-02T16:56:06.000Z"
+    },
+    {
+      "128": 17.87,
+      "129": 0.79,
+      "130": 0.575,
+      "131": 0,
+      "132": 1536875539,
+      "133": 0.001,
+      "134": 0,
+      "135": 60,
+      "140": 1,
+      "143": 0,
+      "179": 21785,
+      "186": 52,
+      "187": -10000,
+      "200": 0,
+      "201": 1.67,
+      "202": 1,
+      "address": "{address}",
+      "date": "2018-10-02T16:54:45.000Z"
+    },
+    {
+      "128": 17.75,
+      "129": 0.79,
+      "130": 0.575,
+      "131": 0,
+      "132": 1536875539,
+      "133": 0.001,
+      "134": 0,
+      "135": 60,
+      "140": 1,
+      "143": 0,
+      "179": 21785,
+      "186": 52,
+      "187": -10000,
+      "200": 0,
+      "201": 1.67,
+      "202": 1,
+      "address": "{address}",
+      "date": "2018-10-02T16:53:23.000Z"
+    }
+  ],
+  "Count": 5,
+  "ScannedCount": 5
 }
 ```
 
-* running
-  - integer value 0-1
-  - 0 = Machine is running and/or machine should be running
-  - 1 = Machine is stopped and/or machine should be stopped
-  - Note: The output of this value is dependent on auto mode. 
-    - If the Altrac is in auto mode -- 1 will correspond to when the Altrac is telling the machine to run and 0 will correspond to when Altrac is telling the machine to stop
-    - If the Altrac is in manual mode -- 1 will correspond to when the Altrac senses the machine is running and 0 will correspond to when Altrac senses the machine is stopped. This is used to capture times when the person operating the wind machine is running the wind machine manually 
+Fields Key:
 
-* fuelLevel
-  - float in range 0.0 - 1.0 (empty to full)
-  - string value indicates warning or error condition, examples: "ERR", "Not Connected", …
-  - relative level of fuel in tank
+| Field   | Purpose                                            | Unit / Value                                                                                                                       |
+|---------|----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| 0       | Unused                                             | N/A                                                                                                                                |
+| 1 - 100 | General purpose, including moisture sensor values  | %VWC                                                                                                                               |
+| 128     | Ambient Temperature                                | °C                                                                                                                                 |
+| 129     | Internal Battery                                   | %                                                                                                                                  |
+| 130     | External Battery                                   | Multiply by 21.633 to get Voltage                                                                                                  |
+| 131     | Engine State                                       | Running or Not Running                                                                                                             |
+| 131     | machine-state                                      | (on/off boolean)                                                                                                                   |
+| 131     | pump relay output                                  | (boolean)                                                                                                                          |
+| 132     | Engine State Change Time                           | Time Since Epoch                                                                                                                   |
+| 132     | machine-state                                      | timestamp                                                                                                                          |
+| 133     | Fuel Level                                         | % of 5.5V. Find conversion factor in device interface and physical                                                                 |
+| 133     | fuel-level                                         |                                                                                                                                    |
+| 133     | pump pressure                                      |                                                                                                                                    |
+| 134     | RPM                                                | Raw RPM value, find multiplier in device interface                                                                                 |
+| 134     | tach-or-speed                                      |
+| 134     | pump run-signal (boolean)                          |                                                                                                                                    |
+| 134     | GPM???                                             |                                                                                                                                    |
+| 134     | pump v1 pulse counter                              |                                                                                                                                    |
+| 135     | sleep-time                                         | seconds                                                                                                                            |
+| 136     | pressure                                           | psi                                                                                                                                |
+| 137     | not saved                                          |                                                                                                                                    |
+| 138     | power-current                                      | %                                                                                                                                  |
+| 139     | power-frequency                                    | Hz                                                                                                                                 |
+| 140     | Engine State                                       |   0-is in ECU delay, 1-is stopped, 2-MPC-20 controller in standby, 3-in prestart delay 1, 4-in checksafe, 5-in prestart delay 2, 6-crank on, 7-crank rest, 8-false start, 9-in warmup delay, 10-in line fill 1, 11-in line fill 2, 12-running loaded, 13-in cooldown delay, 14-energize to stop, 15-in spindown delay, 16-in wait to start delay |
+| 140     | vapor pressure                                     | kPa                                                                                                                                |
+| 140     | moisture-1                                         |                                                                                                                                    |
+| 141     | shutdown-status                                    |                                                                                                                                    |
+| 141     | barometer                                          | kPa                                                                                                                                |
+| 141     | moisture-2                                         |                                                                                                                                    |
+| 141     | pump flow                                          | 4-20mA                                                                                                                             |
+| 142     | warning-status                                     |                                                                                                                                    |
+| 142     | humidity                                           | %                                                                                                                                  |
+| 142     | moisture-3                                         |                                                                                                                                    |
+| 143     | Auto Switch                                        | Analog value of temperature switch. 0 - 10000 converts to 0 - 100%. Should be 100% when auto switch is in auto position            |
+| 143     | controller-status-auto                             |                                                                                                                                    |
+| 143     | solar                                              | W/m2                                                                                                                               |
+| 144     | controller-status-auto (controller-status-modbus) |                                                                                                                                    |
+| 144     | precipitation now                                         | mm                                                                                                                                 |
+| 145     | pond level                                         |                                                                                                                                    |
+| 145     | strikes                                            |                                                                                                                                    |
+| 146     | strike dist                                        | km                                                                                                                                 |
+| 147     | dew point                                          |                                                                                                                                    |
+| 148     | wind direction                                     |                                                                                                                                    |
+| 149     | wind gust                                          |                                                                                                                                    |
+| 150     | pressure switch                                    |                                                                                                                                    |
+| 151     | pressure switch                                    |                                                                                                                                    |
+| 153     | north wind speed                                   | m/s                                                                                                                                |
+| 154     | east wind speed                                    | m/s                                                                                                                                |
+| 162     | pond level min today                               |                                                                                                                                    |
+| 17 - 32 | salinity values                                    | ECe, dS/m                                                                                                                          |
+| 179     | cellular dB                                        |                                                                                                                                    |
+| 185     | power-fault                                        |                                                                                                                                    |
+| 186     | power-state                                        |                                                                                                                                    |
+| 187     | humidity temp                                      |                                                                                                                                    |
+| 200     | Temperature Start Setting confirmed by device      | °C                                                                                                                                 |
+| 201     | Temperature Stop Setting confirmed by device       | °C                                                                                                                                 |
+| 202     | Auto mode confirmed by device                      | 1 = Auto, 0 = Manual                                                                                                               |
+| 203     | manual run state confirmed by device               | On/Off boolean                                                                                                                     |
+| 33 - 48 | temperature values                                 | °C                                                                                                                                 |
+| date    | Date of Reading                                    | ISO-8601 date format                                                                                                               |
 
-* internalBattery
-  - integer % (percent)
-  - state of charge of Altrac device internal battery
+### GET: Readings for a Device -- Data Translated and Converted -- ***EXPERIMENTAL***
+This endpoint supplies readings (sensor) information for a given device address or ID. The readings are translated and converted for ease of use
 
-* rpm
-  - integer
-  - engine RPM (revolutions per minute) at time of reading
+Query:
 
-* rssiDb
-  - integer decibels
-  - cellular radio signal strength
 
-* temperatureStart
-  - float °C
-  - when ambient temperature is below this value start signal will be sent to the controlled equipment when machine is in AUTO START mode
-
-* temperatureStop
-  - float °C
-  - when ambient temperature is above this value stop signal will be sent to the controlled equipment when machine is in AUTO START mode
-
-* autoMode 
-  - integer
-
-| value | description  |
-|:-----:|:-------------|
-|   0   | MANUAL       |
-|   1   | AUTO         |
-
-* temperature
-  - float °C
-  - ambient atmospheric temperature recorded by Altrac device attached sensor
-
-### Settings
-#### Updating device settings
-```javascript
-const newSettings = {
-  address,
-  settings: {
-    tempStart: 2, // set start temperature °C
-    tempStop: 3, // set stop temperature °C
-    sleepInterval: 900, // set interval between readings (seconds)
+By device ID:
+```Shell
+curl --request GET \
+  --url 'https://altrac-api.com/readings/deviceId/{address}?=&dateBegin={date_begin}&dateEnd={date_end}&convert=true' \
+  --header 'authorization: Bearer {token}'
+```
+By device address:
+```Shell
+curl --request GET \
+  --url 'https://altrac-api.com/readings/address/{address}?=&dateBegin={date_begin}&dateEnd={date_end}&convert=true' \
+  --header 'authorization: Bearer {token}'
+```
+Response:
+```JSON
+[
+  {
+    "date": "2020-07-15T21:24:38.000Z",
+    "temperature": 1,
+    "engineState": 12,
+    "callToRun": 1,
+    "rpm": 2482,
+    "batteryExternalV": 12.2,
+    "fuelLevel": "Not Connected",
+    "temperatureStart": 0,
+    "temperatureStop": 1.1,
+    "autoMode": 1
+  },
+  {
+    "date": "2020-07-15T21:22:32.000Z",
+    "temperature": 1,
+    "engineState": 12,
+    "callToRun": 1,
+    "rpm": 2532,
+    "batteryExternalV": 12.2,
+    "fuelLevel": "Not Connected",
+    "temperatureStart": 0,
+    "temperatureStop": 1.1,
+    "autoMode": 1
+  },
+  {
+    "date": "2020-07-15T21:20:25.000Z",
+    "temperature": 1,
+    "engineState": 12,
+    "callToRun": 1,
+    "rpm": 2462,
+    "batteryExternalV": 12.2,
+    "fuelLevel": "Not Connected",
+    "temperatureStart": 0,
+    "temperatureStop": 1.1,
+    "autoMode": 1
+  },
+  {
+    "date": "2020-07-15T21:18:19.000Z",
+    "temperature": 1,
+    "engineState": 12,
+    "callToRun": 1,
+    "rpm": 2472,
+    "batteryExternalV": 12.2,
+    "fuelLevel": "Not Connected",
+    "temperatureStart": 0,
+    "temperatureStop": 1.1,
+    "autoMode": 1
   }
-};
-
-const settingsResult = await altracClient1
-  .post(`settings`, { address }, newSettings)
-  .catch((error) => handleError(error));
+]
 ```
 
-#### Data Fields
+## Settings Model
+### POST: Create a new setting for a device
 
-##### Settings available for Wind Machines
+This endpoint is used to send a setting to a device. 
+
+The endpoint automatically merges settings that are going to the same device which still have the status "new". For example, you could send a setting payload for a device that just has the "tempStart" settings, then follow it with a setting for a device with the "tempStop" setting. These two will be merged together in the backend and sent to the device in one payload. 
+
+Once a setting is created for a device, the device model property "application_settings_new" will be updated with the setting status. Once the setting has been sent to the device, the device model properties "application_settings" and "application_settings_new" will be updated, reflecting status. To be sure a setting has been accepted, you should also check the latest reading on the device model for the properties "200", "201" and "202", please reference above for their meaning.
+
+Query:
+
+```Shell
+curl --request POST \
+  --url 'https://altrac-api.com/settings' \
+  --header 'authorization: Bearer {token}'
+  --header 'content-type: application/json' \
+  --data '[
+  {
+    "address": "{address}",
+    "status": "new",
+    "settings": {
+      "tempStart": -1,
+      "tempStop": 2
+    }
+  }
+]'
+```
+Response:
+```javascript
+[
+  {
+    "id": "{id}",
+    "address": "{address}",
+    "settings": {
+      "tempStop": 2,
+      "tempStart": -1
+    },
+    "status": "new",
+    "user_id": "{user_id}",
+    "created_at": "2018-11-10T21:14:50.494Z",
+    "updated_at": "2018-11-10T21:15:50.440Z"
+  }
+]
+```
+
+Settings available for Wind Machines
 
 * auto
   - integer
 
-| value | description  |
-|:-----:|:-------------|
-|   0   | MANUAL  |
-|   1   | AUTO    |
+| value | description |
+|:-----:|:------------|
+|   0   | MANUAL      |
+|   1   | AUTO        |
 
 * run
   - integer
@@ -646,7 +777,6 @@ const settingsResult = await altracClient1
 |   0   | OFF         |
 |   1   | ON          |
 
-
-##### Settings available for Pumps and Valves
+Settings available for Pumps and Valves
 
 ***TBD***
