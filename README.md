@@ -40,7 +40,7 @@ You will be able to use the token generated in the response in order to perform 
 
 ## User Model
 ### GET: User Information
-This endpoint supplies the customer_id needed for other queries below.
+This endpoint supplies the customer_id needed for other queries below if it is not obtained in the login query above.
 
 Query:
 
@@ -86,25 +86,22 @@ Response:
   "id": "112345678901234567890",
   "applications": [
     {
-      "name": "Moisture",
-      "deviceType": "moistureSensor",
-      "deviceGroup": "Moisture"
-    },{
-      "name": "Pumps",
-      "deviceType": "pump",
-      "deviceGroup": "Pumps"
-    },{
-      "name": "Valves",
-      "deviceType": "valve",
-      "deviceGroup": "Valves"
-    },{
-      "name": "Wind Machines",
-      "deviceType": "windMachine",
-      "deviceGroup": "Garden Valley"
-    },{
-      "name": "Weather",
-      "deviceType": "temperature",
-      "deviceGroup": "Weather"
+      "deviceGroup": "Wind Machine",
+      "icon": "WindMachine",
+      "groupID": "2512830824047445964",
+      "name": "Wind Machine"
+    },
+    {
+      "deviceGroup": "Valve",
+      "icon": "Valve",
+      "groupID": "2512830824047445965",
+      "name": "Valve"
+    },
+    {
+      "deviceGroup": "Pump",
+      "icon": "Pump",
+      "groupID": "2512830824047445966",
+      "name": "Pump"
     }
   ],
   "customer_name": "ABC Fruit",
@@ -127,8 +124,9 @@ Response:
 | field       | description                                           |
 |:------------|:------------------------------------------------------|
 | name        | display name of device group                          |
-| deviceType  | type of equipment controlled by devices in this group |
-| deviceGroup | ID of group                                           |
+| icon        | User selectable icone for group identification                 |
+| groupID     | ID of the group. Used for matching groups to devices and users |
+| deviceGroup | Unused.                                               |
 
 * customer_name 
   - string
@@ -136,22 +134,6 @@ Response:
 * brand 
   - Object
   - Applies CSS and formatting to Altrac UI for customers of a brand
-
-* deviceType 
-  - string
-  - equipment type controlled by device
-
-| deviceType     | description                            |
-|:---------------|:---------------------------------------|
-| binDicator     | automated storage bin                  |
-| coldAirDrain   | fan similar in purpose to wind machine |
-| flow           | flow sensor                            |
-| moistureSensor | moisture sensor                        |
-| pump           | pump                                   |
-| pumpFrostWater | water sprayer pump                     |
-| temperature    | weather station                        |
-| valve          | valve                                  |
-| windMachine    | machine                                |
 
 * is_active
   - boolean
@@ -161,17 +143,17 @@ Response:
 | true  | supported by the system                 |
 | false | customer is not supported by the system |
 
-### GET: All Customer Devices by Type and Group
+### GET: All Customer Devices by Group ID
 
-This endpoint returns all customer devices by Device Type and Device Group
+This endpoint returns all customer devices by Group ID
 - Device Type: This is the type of Altrac device -- an example would be `windMachine` which equals "Wind Machine". You can find values for this in the Customer Information query.
-- Device Group: This is the group the device belongs to -- an example from Customer Information above would be `Garden Valley`. Groups are used primarily to distinguish between ranches.
+- Device Group: This is the group the device belongs to -- an example from Customer Information above would be `Wind Machine`. Groups are used primarily to distinguish between ranches.
 
 Query:
 
 ```Shell
 curl --request GET \
-  --url 'https://altrac-api.com/customers/{customer_id}/devices?deviceType={deviceType}&deviceGroup={deviceGroup}' \
+  --url 'https://altrac-api.com/customers/{customer_id}/devices?groupID={groupID}' \
   --header 'authorization: Bearer {token}'
 ```
 Response:
@@ -232,6 +214,7 @@ Response:
     "updated_at": "2020-05-26T23: 34: 09.297Z"
   },
   "customer_id": "1472639155912574382",
+  "group_id": "2512830824047445964",
   "customer_id_old": "",
   "address_alias": "WM36662",
   "created_at": "2019-12-13T01: 39: 15.476Z",
@@ -275,6 +258,10 @@ Response:
   - string
   - display name of device
 
+* group_id
+  - string
+  - Group the device belongs to
+
 * application_settings
   - Object
   - current device configuration
@@ -301,14 +288,6 @@ Response:
 
 * customer_id
   - string
-
-* customer_id_old
-  - string
-  - deprecated - please ignore
-
-* deviceGroup
-  - string
-  - an arbitrary group of devices of a certain type that will be grouped together on UI panels and in reports
 
 * deviceNumber
   - string
@@ -397,18 +376,266 @@ Response:
   - float °C
   - when ambient temperature is above this value stop signal will be sent to the controlled equipment when machine is in AUTO START mode
 
-* type
+* user_id
   - string
-  - see ***deviceType***
+  - ID of user who performed last update
+
+* customer_id_old
+  - string
+  - deprecated - please ignore
+
+* deviceGroup
+  - string
+  - an arbitrary group of devices of a certain type that will be grouped together on UI panels and in reports
+  - deprecated - please ignore
+
+
+### GET: Device by ID, convert=true
+
+This endpoint is used to get information about a specific device. It is the same as the last request, except it converts reading data for easy consumption.
+
+Query:
+
+```Shell
+curl --request GET \
+  --url 'https://altrac-api.com/devices/{device_id}?convert=true' \
+  --header 'authorization: Bearer {token}'
+```
+Response:
+```JSON
+{
+  "id": "2197657034483041797",
+  "address": "3c0030000247373430333032",
+  "application_settings": {
+    "date": "2020-05-26T23: 44: 00.922Z",
+    "address": "3c0030000247373430333032",
+    "user_id": "1719045011913311727",
+    "settings": {
+      "run": 0,
+      "auto": 1,
+      "update": 0,
+      "tempStop": 4.44,
+      "tempStart": 0.28,
+      "sleepInterval": 900
+    },
+    "created_at": "2020-05-26T23: 33: 38.856Z",
+    "updated_at": "2020-05-26T23: 34: 09.297Z"
+  },
+  "application_settings_new": {
+    "id": "2317906584119805923",
+    "date": "2020-05-26T23: 44: 00.922Z",
+    "status": "onDevice",
+    "address": "3c0030000247373430333032",
+    "user_id": "1719045011913311727",
+    "settings": {
+      "tempStop": 4.44,
+      "tempStart": 0.28
+    },
+    "created_at": "2020-05-26T23: 33: 38.856Z",
+    "updated_at": "2020-05-26T23: 34: 09.297Z"
+  },
+  "customer_id": "1472639155912574382",
+  "group_id": "2512830824047445964",
+  "customer_id_old": "",
+  "address_alias": "WM36662",
+  "created_at": "2019-12-13T01: 39: 15.476Z",
+  "updated_at": "2020-07-10T10: 26: 22.383Z",
+  "installed_at": null,
+  "interface": null,
+  "interface_id": "1738173727062885911",
+  "is_active": true,
+  "activated_at": null,
+  "deactivated_at": null,
+  "monitor_status": "none",
+  "physical": {
+    "deviceType": "windMachine",
+    "deviceGroup": "Wind Machine",
+    "deviceNumber": "01S"
+  },
+  "configuration": { ... },
+  "reading0": {
+    "batteryInternalP": 0.8,
+    "cellularBars": 4,
+    "cellularRssi": 68,
+    "cellularQuality": 6,
+    "inputPower": 1,
+    "autoMode": 0,
+    "autoSwitch": 0,
+    "engineState": 12,
+    "running": 0,
+    "rpm": 0,
+    "temperature": 34.75,
+    "batteryExternalV": 13.65,
+    "temperatureStart": 0,
+    "temperatureStop": 2.22
+  },
+  "reading1": {
+
+    "batteryInternalP": 0.8,
+    "cellularBars": 4,
+    "cellularRssi": 68,
+    "cellularQuality": 6,
+    "inputPower": 1,
+    "autoMode": 0,
+    "autoSwitch": 0,
+    "engineState": 12,
+    "running": 0,
+    "rpm": 0,
+    "temperature": 34,
+    "batteryExternalV": 13.65,
+    "temperatureStart": 0,
+    "temperatureStop": 2.22
+  },
+  "interface_versioned": { ... }
+}
+```
+
+#### Data Fields
+
+* address
+  - string
+  - cellular network ID of device
+
+* address_alias
+  - string
+  - display name of device
+
+* group_id
+  - string
+  - Group the device belongs to
+
+* application_settings
+  - Object
+  - current device configuration
+
+* application_settings_new
+  - Object
+  - device configuration change values - either waiting to be applied, or the last change that has been applied
+
+* auto 
+  - integer
+  - auto start mode
+
+| value | description  |
+|:-----:|:-------------|
+|   1   | AUTO start   |
+|   0   | MANUAL start |
+
+* date
+  - string ISO UTC date
+
+* configuration
+  - Object
+  - Altrac internal data - please ignore
+
+* customer_id
+  - string
+
+* deviceNumber
+  - string
+  - additional device alias for display to user in UI and reports
+
+* deviceType 
+  - string
+  - equipment type controlled by device
+
+| deviceType     | description                            |
+|:---------------|:---------------------------------------|
+| binDicator     | automated storage bin                  |
+| coldAirDrain   | fan similar in purpose to wind machine |
+| flow           | flow sensor                            |
+| moistureSensor | moisture sensor                        |
+| pump           | pump                                   |
+| pumpFrostWater | water sprayer pump                     |
+| temperature    | weather station                        |
+| valve          | valve                                  |
+| windMachine    | machine                                |
+
+* interface
+  - Object 
+  - internal use - please ignore
+
+* interface_id
+  - string 
+  - internal use - please ignore
+
+* interface_versioned
+  - Object 
+  - internal use - please ignore
+
+* monitor_status
+  - string
+ 
+|       value       | description                                   |
+|:-----------------:|:----------------------------------------------|
+|     noAlerts      | alerts are suspended for this device          |
+|      triage       | problem detected requiring manual examination |
+|       none        | monitored                                     |
+| offlineSeasonally | alerts temporarily suspended                  |
+
+* physical
+  - Object 
+  - low level detail elements of machine configuration
+
+* reading0
+  - Object
+  - last converted device reading sent
+
+* reading1
+  - Object
+  - second to last converted raw device reading sent
+
+* run
+  - integer
+ 
+| value | description |
+|:-----:|:------------|
+|   1   | running     |
+|   0   | stopped     |
+ - integer
+
+* settings
+  - Object
+  - device configuration values
+
+* sleep_interval 
+  - integer seconds
+  - interval between sending readings
+
+* status
+  - string
+ 
+|  value   | description                                |
+|:--------:|:-------------------------------------------|
+|   new    | change has not been acknowledged by device |
+| onDevice | change has been applied                    |
+
+* tempStart
+  - float °C
+  - when ambient temperature is below this value start signal will be sent to the controlled equipment when machine is in AUTO START mode
+
+* tempStop
+  - float °C
+  - when ambient temperature is above this value stop signal will be sent to the controlled equipment when machine is in AUTO START mode
 
 * user_id
   - string
   - ID of user who performed last update
 
-## Device Model
+* customer_id_old
+  - string
+  - deprecated - please ignore
+
+* deviceGroup
+  - string
+  - an arbitrary group of devices of a certain type that will be grouped together on UI panels and in reports
+  - deprecated - please ignore
+
 ### GET: Devices by Address
 
 Devices can also be retrieved using an **address** (cellular network identity). This endpoint is used primarily to obtain devices that share the same address. It returns an array of Devices that match the address provided. Multiple device IDs for the same address are used when device functionality needs to be split between multiple user interface objects.
+
+The `convert=true` parameter can also be used here.
 
 Query:
 
@@ -622,7 +849,7 @@ Fields Key:
 | 33 - 48 | temperature values                                 | °C                                                                                                                                 |
 | date    | Date of Reading                                    | ISO-8601 date format                                                                                                               |
 
-### GET: Readings for a Device -- Data Translated and Converted -- ***EXPERIMENTAL***
+### GET: Readings for a Device -- Data Translated and Converted
 This endpoint supplies readings (sensor) information for a given device address or ID. The readings are translated and converted for ease of use
 
 Query:
