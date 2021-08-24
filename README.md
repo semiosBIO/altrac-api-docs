@@ -38,6 +38,27 @@ Response:
 ```
 You will be able to use the token generated in the response in order to perform the queries detailed below.
 
+### POST: Client ID / Secret Login
+
+NOTE: You must first obtain a client ID and secret from Altrac (support@altrac.io), then you can generate a bearer token following the example provided here: https://github.com/altracio/altrac-api-client
+
+Request:
+```Shell
+curl --request POST \
+  --url http://altrac-dev:3001/auth \
+  --header 'Authorization: Bearer {token}' \
+  --header 'Content-Type: application/json' \
+  --header 'X-Altrac-Client: {client_id}'
+```
+Response:
+```
+{
+  "token": "token",
+  "customer_id": "1542808457780921529"
+}
+```
+You will be able to use the token generated in the response in order to perform the queries detailed below.
+
 ## User Model
 ### GET: User Information
 This endpoint supplies the customer_id needed for other queries below if it is not obtained in the login query above.
