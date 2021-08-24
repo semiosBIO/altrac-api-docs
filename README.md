@@ -45,7 +45,7 @@ NOTE: You must first obtain a client ID and secret from Altrac (support@altrac.i
 Request:
 ```Shell
 curl --request POST \
-  --url http://altrac-dev:3001/auth \
+  --url https://altrac-api.com/auth \
   --header 'Authorization: Bearer {token}' \
   --header 'Content-Type: application/json' \
   --header 'X-Altrac-Client: {client_id}'
