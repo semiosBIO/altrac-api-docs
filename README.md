@@ -805,7 +805,107 @@ Response:
 }
 ```
 
-Fields Key:
+#### Fields Key for Wind Machines:
+
+| Field   | Purpose                                            | Unit / Value                                                                                                                       |
+|---------|----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| 000     | Unused                                             | N/A                                                                                                                                |
+| 034     | RPM Source                                             | 1 = IN1, 2 = VRIN, 3 = Electric                                                                                                                                |
+| 001     | Soil Moisture Status                                             | N/A                                                                                                                                |
+| 128     | Ambient Temperature                                | °C                                                                                                                                 |
+| 129     | Internal Battery                                   | %                                                                                                                                  |
+| 130     | External Battery                                   | Multiply by 21.633 to get Voltage                                                                                                  |
+| 131     | Engine State                                       | Running or Not Running                                                                                                             |
+| 132     | Engine State Change Time                           | Time Since Epoch                                                                                                                   |
+| 133     | Fuel Level                                         | % of 5.5V. Find conversion factor in device interface and physical                                                                 |
+| 134     | RPM                                                | Raw RPM value, find multiplier in device interface                                                                                 |
+| 135     | sleep-time                                         | seconds                                                                                                                            |
+| 140     | Engine State                                       |   0-is in ECU delay, 1-is stopped, 2-MPC-20 controller in standby, 3-in prestart delay 1, 4-in checksafe, 5-in prestart delay 2, 6-crank on, 7-crank rest, 8-false start, 9-in warmup delay, 10-in line fill 1, 11-in line fill 2, 12-running loaded, 13-in cooldown delay, 14-energize to stop, 15-in spindown delay, 16-in wait to start delay |
+| 141     | shutdown-status                                    | Amarillo Machines                                                                                                                                   |
+| 142     | warning-status                                     | Amarillo Machines                                                                                                                                   |
+| 143     | Auto Switch                                        | Analog value of temperature switch. 0 - 10000 converts to 0 - 100%. Should be 100% when auto switch is in auto position            |
+| 144     | controller-status-auto (controller-status-modbus) |                                                                                                                                    |
+| 179     | cellular dB and RSSI                                        |                                                                                                                                    |
+| 185     | power-fault                                        |                                                                                                                                    |
+| 186     | power-state                                        |                                                                                                                                    |
+| 187     | temp alternate                                      |                                                                                                                                    |
+| 188     | power-state detailed                                        |                                                                                                                                    |
+| 189     | reset reason                                        |                                                                                                                                    |
+| 200     | Temperature Start Setting confirmed by device      | °C                                                                                                                                 |
+| 201     | Temperature Stop Setting confirmed by device       | °C                                                                                                                                 |
+| 202     | Auto mode confirmed by device                      | 1 = Auto, 0 = Manual                                                                                                               |
+| date    | Date of Reading                                    | ISO-8601 date format                                                                                                               |
+#### Fields Key for Valves:
+
+| Field   | Purpose                                            | Unit / Value                                                                                                                       |
+|---------|----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| 128     | Ambient Temperature                                | °C                                                                                                                                 |
+| 130     | Internal Battery                                   | Multiply by 17.4587 to get Voltage                                                                                                  |
+| 140     | Solar                                   | Multiply by 0.00294624 to get Voltage                                                                                                  |
+| 180     | Internal Battery on Wake                                   | Multiply by 17.4587 to get Voltage                                                                                                  |
+| 131     | Solenoid States                                       | 0b00 = both off, 0b01 = valve 1 on, 0b10 = valve 2 on, 0b11 = both valves on                                                                                                             |
+| 134     | Pressure States                                    | 0b00 = both off, 0b01 = pressure 1 on, 0b10 = pressure 2 on, 0b11 = both pressures on |
+| 135     | sleep-time                                         | seconds                                                                                                                            |
+| 141     | digital sensor state                                    | 1 = ON, 0 = OFF                                                                                                                                   |
+| 142     | Pressure sensor 1                                     | 4-20mA sensor, calculation for mA = value / 10000 * 2.048 * 10                                                                                                                                   |
+| 143     | Pressure sensor 2                                     | 4-20mA sensor, calculation for mA = value / 10000 * 2.048 * 10                                                                                                                                   |
+| 154     | Solenoid 1 result                                     | 0 = OK, 1 = Unknown, 2 = Open Circuit, 3 = Short Circuit                                                                                                                                   |
+| 155     | Solenoid 1 max voltage                                     |  |
+| 197     | Solenoid 1 retries                                     |  |
+| 157     | Solenoid 1 result                                     | 0 = OK, 1 = Unknown, 2 = Open Circuit, 3 = Short Circuit                                                                                                                                   |
+| 158     | Solenoid 1 max voltage                                     |  |
+| 198     | Solenoid 1 retries                                     |  |
+| 179     | cellular dB                                        |                                                                                                                                    |
+| 184     | ambient light sensor   | 1 = Door open, 0 = Door closed                                                                                                                                   |
+| 186     | power-state                                        |                                                                                                                                    |
+| 189     | reset reason                                        |                                                                                                                                    |
+| 205     | Schedule crc      |                                                                                                                                  |
+| date    | Date of Reading                                    | ISO-8601 date format                                                                                                               |
+#### Fields Key for Pumps:
+
+| Field   | Purpose                                            | Unit / Value                                                                                                                       |
+|---------|----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| AN1 | Analog sensor 1 | V or mA |
+| AN2 | Analog sensor 2 | V or mA |
+| CQ | Cell Quality |  |
+| CS | Cell Signal | RSSI |
+| DI1 | Digital Input 1 | Boolean |
+| DI2 | Digital Input 1 | Boolean |
+| DI3 | Digital Input 1 | Boolean |
+| DL10 | Device Logic Indicator 1 0 |  |
+| DL11 | Device Logic Indicator 1 1 |  |
+| DL20 | Device Logic Indicator 2 0 |  |
+| DL21 | Device Logic Indicator 2 1 |  |
+| IB | Internal Battery | Percent |
+| PC | Pulse Count | Count |
+| PD | Pulse Distance | milliseconds |
+| PM8 | Power State |  |
+| PS | Pulse State | boolean |
+| PT | Pulse Time | epoch seconds |
+| R1 | Relay 1 | Boolean |
+| R1F | Relay 1 Feedback | V or mA |
+| R1S | Relay 1 State | 0-is in ECU delay, 1-is stopped, 2-MPC-20 controller in standby, 3-in prestart delay 1, 4-in checksafe, 5-in prestart delay 2, 6-crank on, 7-crank rest, 8-false start, 9-in warmup delay, 10-in line fill 1, 11-in line fill 2, 12-running loaded, 13-in cooldown delay, 14-energize to stop, 15-in spindown delay, 16-in wait to start delay |
+| R1T | Relay 1 Change Time | epoch seconds |
+| R2 | Relay 2 | Boolean |
+| R2F | Relay 2 Feedback | V or mA |
+| R2S | Relay 2 State | 0-is in ECU delay, 1-is stopped, 2-MPC-20 controller in standby, 3-in prestart delay 1, 4-in checksafe, 5-in prestart delay 2, 6-crank on, 7-crank rest, 8-false start, 9-in warmup delay, 10-in line fill 1, 11-in line fill 2, 12-running loaded, 13-in cooldown delay, 14-energize to stop, 15-in spindown delay, 16-in wait to start delay |
+| R2T | Relay 2 Change Time | epoch seconds |
+| RTC | RTC time is good | boolean |
+| VEA | Firmware version |  |
+| VM | Power Supply Voltage | V |
+| WDR | Watchdog reset |  |
+| WDT | Watchdog reset countdown timer |  |
+| X! |  Program Running Relay 1 | 0 = manual, 1 = schedule |
+| X@ |  Program Running Relay 2| 0 = manual, 1 = schedule |
+| XA | Auto Mode Relay 1 | 0 = manual, 1 = auto |
+| XB | Auto Mode Relay 2 | 0 = manual, 1 = auto |
+| XQ | Manual Mode Setting | 0 = off, 1 = on |
+| XR | Manual Mode Setting | 0 = off, 1 = on |
+| address | Device Mac Address |  |
+| date | Date of Reading                                    | ISO-8601 date format                                                                                                               |
+| deviceId | Internal Device ID |  |
+
+#### Fields Key for Other:
 
 | Field   | Purpose                                            | Unit / Value                                                                                                                       |
 |---------|----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
@@ -814,38 +914,25 @@ Fields Key:
 | 128     | Ambient Temperature                                | °C                                                                                                                                 |
 | 129     | Internal Battery                                   | %                                                                                                                                  |
 | 130     | External Battery                                   | Multiply by 21.633 to get Voltage                                                                                                  |
-| 131     | Engine State                                       | Running or Not Running                                                                                                             |
-| 131     | machine-state                                      | (on/off boolean)                                                                                                                   |
 | 131     | pump relay output                                  | (boolean)                                                                                                                          |
 | 132     | Engine State Change Time                           | Time Since Epoch                                                                                                                   |
 | 132     | machine-state                                      | timestamp                                                                                                                          |
 | 133     | Fuel Level                                         | % of 5.5V. Find conversion factor in device interface and physical                                                                 |
-| 133     | fuel-level                                         |                                                                                                                                    |
 | 133     | pump pressure                                      |                                                                                                                                    |
-| 134     | RPM                                                | Raw RPM value, find multiplier in device interface                                                                                 |
-| 134     | tach-or-speed                                      |
 | 134     | pump run-signal (boolean)                          |                                                                                                                                    |
-| 134     | GPM???                                             |                                                                                                                                    |
 | 134     | pump v1 pulse counter                              |                                                                                                                                    |
 | 135     | sleep-time                                         | seconds                                                                                                                            |
 | 136     | pressure                                           | psi                                                                                                                                |
-| 137     | not saved                                          |                                                                                                                                    |
 | 138     | power-current                                      | %                                                                                                                                  |
 | 139     | power-frequency                                    | Hz                                                                                                                                 |
-| 140     | Engine State                                       |   0-is in ECU delay, 1-is stopped, 2-MPC-20 controller in standby, 3-in prestart delay 1, 4-in checksafe, 5-in prestart delay 2, 6-crank on, 7-crank rest, 8-false start, 9-in warmup delay, 10-in line fill 1, 11-in line fill 2, 12-running loaded, 13-in cooldown delay, 14-energize to stop, 15-in spindown delay, 16-in wait to start delay |
 | 140     | vapor pressure                                     | kPa                                                                                                                                |
 | 140     | moisture-1                                         |                                                                                                                                    |
-| 141     | shutdown-status                                    |                                                                                                                                    |
 | 141     | barometer                                          | kPa                                                                                                                                |
 | 141     | moisture-2                                         |                                                                                                                                    |
 | 141     | pump flow                                          | 4-20mA                                                                                                                             |
-| 142     | warning-status                                     |                                                                                                                                    |
 | 142     | humidity                                           | %                                                                                                                                  |
 | 142     | moisture-3                                         |                                                                                                                                    |
-| 143     | Auto Switch                                        | Analog value of temperature switch. 0 - 10000 converts to 0 - 100%. Should be 100% when auto switch is in auto position            |
-| 143     | controller-status-auto                             |                                                                                                                                    |
 | 143     | solar                                              | W/m2                                                                                                                               |
-| 144     | controller-status-auto (controller-status-modbus) |                                                                                                                                    |
 | 144     | precipitation now                                         | mm                                                                                                                                 |
 | 145     | pond level                                         |                                                                                                                                    |
 | 145     | strikes                                            |                                                                                                                                    |
@@ -863,10 +950,6 @@ Fields Key:
 | 185     | power-fault                                        |                                                                                                                                    |
 | 186     | power-state                                        |                                                                                                                                    |
 | 187     | humidity temp                                      |                                                                                                                                    |
-| 200     | Temperature Start Setting confirmed by device      | °C                                                                                                                                 |
-| 201     | Temperature Stop Setting confirmed by device       | °C                                                                                                                                 |
-| 202     | Auto mode confirmed by device                      | 1 = Auto, 0 = Manual                                                                                                               |
-| 203     | manual run state confirmed by device               | On/Off boolean                                                                                                                     |
 | 33 - 48 | temperature values                                 | °C                                                                                                                                 |
 | date    | Date of Reading                                    | ISO-8601 date format                                                                                                               |
 
