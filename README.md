@@ -857,7 +857,7 @@ Response:
 | 158     | Solenoid 1 max voltage                                     |  |
 | 198     | Solenoid 1 retries                                     |  |
 | 179     | cellular dB                                        |                                                                                                                                    |
-| 184     | ambient light sensor   | 1 = Door open, 0 = Door closed                                                                                                                                   |
+| 184     | ambient light sensor   | 1 = Door closed, 0 = Door open                                                                                                                                   |
 | 186     | power-state                                        |                                                                                                                                    |
 | 189     | reset reason                                        |                                                                                                                                    |
 | 205     | Schedule crc      |                                                                                                                                  |
