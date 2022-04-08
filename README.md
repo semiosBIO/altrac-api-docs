@@ -835,6 +835,7 @@ Response:
 | 201     | Temperature Stop Setting confirmed by device       | °C                                                                                                                                 |
 | 202     | Auto mode confirmed by device                      | 1 = Auto, 0 = Manual                                                                                                               |
 | date    | Date of Reading                                    | ISO-8601 date format                                                                                                               |
+
 #### Fields Key for Valves:
 
 | Field   | Purpose                                            | Unit / Value                                                                                                                       |
@@ -861,6 +862,7 @@ Response:
 | 189     | reset reason                                        |                                                                                                                                    |
 | 205     | Schedule crc      |                                                                                                                                  |
 | date    | Date of Reading                                    | ISO-8601 date format                                                                                                               |
+
 #### Fields Key for Pumps:
 
 | Field   | Purpose                                            | Unit / Value                                                                                                                       |
@@ -904,6 +906,7 @@ Response:
 | address | Device Mac Address |  |
 | date | Date of Reading                                    | ISO-8601 date format                                                                                                               |
 | deviceId | Internal Device ID |  |
+
 
 #### Fields Key for Other:
 
